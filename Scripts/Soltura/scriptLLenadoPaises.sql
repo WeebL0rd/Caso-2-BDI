@@ -1,10 +1,13 @@
 --POBLAR DATOS DE PAÍSES, ESTADOS, CIUDADES, Y MONEDAS
+use solturaDB
+
 INSERT INTO solturaDB.sol_countries (name)
 VALUES
 ('Costa Rica'),
 ('Estados Unidos'),
 ('México'),
 ('España');
+
 
 INSERT INTO solturaDB.sol_states (name, countryID)
 VALUES
