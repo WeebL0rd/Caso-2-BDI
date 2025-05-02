@@ -92,3 +92,10 @@ VALUES
 ('Colón Costarricense', 'CRC', '?', 1),
 ('Dólar Estadounidense', 'USD', '$', 2);
 SET IDENTITY_INSERT solturaDB.sol_addresses OFF;
+
+SET IDENTITY_INSERT solturaDB.sol_exchangeCurrencies ON;
+INSERT INTO solturaDB.sol_exchangeCurrencies (exchangeCurrencyID, sourceID, destinyID, startDate, endDate, exchange_rate, enabled, currentExchange)
+VALUES
+(1, 1, 2, '2023-01-01', NULL, 0.0018, 1, 1),
+(2, 2, 1, '2023-01-01', NULL, 555.556, 1, 1);
+
