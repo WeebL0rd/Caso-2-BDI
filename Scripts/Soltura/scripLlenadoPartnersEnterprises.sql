@@ -1,8 +1,6 @@
 USE solturaDB
 GO
 
-INSERT INTO solturaDB.sol_planTypes(type)
-VALUES ('Singular');
 
 INSERT INTO solturaDB.sol_partners_identifications_types(name) 
 VALUES 
