@@ -197,3 +197,118 @@ DELIMITER ;
 
 call subscripcionesPorUsuario();
 
+
+
+
+-- Insertar roles: Usuario (1) y Administrador (2)
+INSERT INTO pay_roles (role_id, role_name) VALUES
+(1, 'Usuario'),
+(2, 'Administrador');
+
+-- Insertar un solo módulo
+INSERT INTO pay_modules (name) VALUES ('Gestión de Pagos');
+
+-- Insertar permisos
+INSERT INTO pay_permissions (permission_id, description, code, module_id) VALUES
+(1, 'Iniciar sesión', 'LOGIN', 1),
+(2, 'Confirmar pagos', 'CNF_PAY', 1),
+(3, 'Eliminar usuarios', 'DEL_USR', 1),
+(4, 'Aprobar pagos', 'APR_PAY', 1),
+(5, 'Ver reportes', 'VIEW_RPT', 1),
+(6, 'Administrar usuarios', 'MNG_USR', 1);
+
+-- Asignar permisos al rol Usuario (solo básicos: login, confirmar pagos, ver reportes)
+INSERT INTO pay_role_permissions (
+    role_permission_id, role_id, permission_id, enabled, deleted, last_perm_update, username, checksum
+)
+SELECT
+    (@row1 := @row1 + 1) AS role_permission_id,
+    1 AS role_id,
+    p.permission_id,
+    1,
+    0,
+    NOW(),
+    'system',
+    SHA2(CONCAT('1_', p.permission_id), 256)
+FROM (SELECT @row1 := 0) r, pay_permissions p
+WHERE p.permission_id IN (1, 2, 5);
+
+-- Asignar permisos al rol Administrador (todos los permisos)
+INSERT INTO pay_role_permissions (
+    role_permission_id, role_id, permission_id, enabled, deleted, last_perm_update, username, checksum
+)
+SELECT
+    (@row2 := @row2 + 1) + 100 AS role_permission_id,
+    2 AS role_id,
+    p.permission_id,
+    1,
+    0,
+    NOW(),
+    'system',
+    SHA2(CONCAT('2_', p.permission_id), 256)
+FROM (SELECT @row2 := 0) r, pay_permissions p;
+
+-- Asignar el rol Usuario (1) a usuarios con user_id <= 1000
+INSERT INTO pay_user_roles (
+    user_id, role_id, enabled, deleted, last_update, username, checksum
+)
+SELECT
+    u.user_id,
+    1,
+    1,
+    0,
+    NOW(),
+    'system',
+    SHA2(CONCAT(u.user_id, '_rol1'), 256)
+FROM pay_users u
+WHERE u.user_id <= 1000;
+
+-- Asignar el rol Administrador (2) a usuarios con user_id > 1000
+INSERT INTO pay_user_roles (
+    user_id, role_id, enabled, deleted, last_update, username, checksum
+)
+SELECT
+    u.user_id,
+    2,
+    1,
+    0,
+    NOW(),
+    'system',
+    SHA2(CONCAT(u.user_id, '_rol2'), 256)
+FROM pay_users u
+WHERE u.user_id > 1000;
+
+-- Asignar permisos a cada usuario según su rol
+INSERT INTO pay_user_permissions (
+    user_permission_id, permission_id, enabled, deleted, last_perm_update, username, checksum, user_id
+)
+SELECT
+    (@row3 := @row3 + 1) + 2000 AS user_permission_id,
+    rp.permission_id,
+    1,
+    0,
+    NOW(),
+    'system',
+    SHA2(CONCAT(u.user_id, '_', rp.permission_id), 256),
+    u.user_id
+FROM (SELECT @row3 := 0) r, pay_users u
+JOIN pay_user_roles ur ON u.user_id = ur.user_id
+JOIN pay_role_permissions rp ON ur.role_id = rp.role_id;
+
+-- Verificación de inserciones
+SELECT * FROM pay_roles;
+SELECT * FROM pay_permissions;
+SELECT * FROM pay_role_permissions;
+SELECT * FROM pay_user_roles ORDER BY user_id LIMIT 10;
+SELECT * FROM pay_user_permissions ORDER BY user_id LIMIT 10;
+
+-- Truncar tablas (opcional) para reiniciar
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE pay_user_permissions;
+TRUNCATE TABLE pay_user_roles;
+TRUNCATE TABLE pay_role_permissions;
+TRUNCATE TABLE pay_permissions;
+TRUNCATE TABLE pay_roles;
+
+SET FOREIGN_KEY_CHECKS = 1;
