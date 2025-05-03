@@ -46,13 +46,16 @@ BEGIN
 
 		SET IDENTITY_INSERT solturaDB.sol_associateIdentificationTypes ON;
 		INSERT INTO solturaDB.sol_associateIdentificationTypes (identificationTypeID, description, datatype) VALUES
-		(1, 'Cédula de Ciudadanía', 'Número'),
-		(2, 'Tarjeta de Identidad', 'Número'),
-		(3, 'Cédula de Extranjería', 'Alfanumérico'),
-		(4, 'Pasaporte', 'Alfanumérico'),
-		(5, 'NIT', 'Número con dígito de verificación'),
-		(6, 'Registro Civil', 'Número');
+		(1, 'NFC Tag - Formato estándar', 'Binario'),
+		(2, 'NFC Tag - Formato personalizado', 'Binario'),
+		(3, 'Código QR - Versión 1', 'Texto'),
+		(4, 'Código QR - Versión 2 con logo', 'Texto'),
+		(5, 'Código QR Dinámico', 'URL'),
+		(6, 'NFC HCE (Host Card Emulation)', 'Binario'),
+		(7, 'Código QR de un solo uso', 'Texto encriptado'),
+		(8, 'NFC con autenticación biométrica', 'Binario seguro');
 		SET IDENTITY_INSERT solturaDB.sol_associateIdentificationTypes OFF;
+
 
 		SET IDENTITY_INSERT solturaDB.sol_planTypes ON;
 		INSERT INTO solturaDB.sol_planTypes (planTypeID, type, userID) VALUES
@@ -72,6 +75,7 @@ BEGIN
 		(14, 'Temporada', NULL),
 		(15, 'Personal Plus', NULL);
 		SET IDENTITY_INSERT solturaDB.sol_planTypes OFF;
+		
 
 		SET IDENTITY_INSERT solturaDB.sol_plans ON;
 		INSERT INTO solturaDB.sol_plans (planID, description, planTypeID) VALUES 
@@ -94,7 +98,11 @@ BEGIN
 		(17, 'Plan ONG', 12),
 		(18, 'Plan Emergencia', 13),
 		(19, 'Plan Temporada Baja', 14),
-		(20, 'Plan Personal Plus', 15);
+		(20, 'Plan Personal Plus', 15),
+		(21, 'Joven Deportista', 5),  
+		(22, 'Familia de Verano', 4), 
+		(23, 'Viajero Frecuente', 6), 
+		(24, 'Nómada Digital', 6);    
 		SET IDENTITY_INSERT solturaDB.sol_plans OFF;
 
 		SET IDENTITY_INSERT solturaDB.sol_planPrices ON;
@@ -280,7 +288,14 @@ BEGIN
         (22, 22, 2, 1, '2023-02-05', 1),
         (23, 23, 2, 2, '2023-03-15', 1),
         (24, 24, 3, 3, '2023-04-25', 1),
-        (25, 25, 3, 3, '2023-05-30', 1);
+        (25, 25, 3, 3, '2023-05-30', 1),
+		(26, 6, 1, 1, '2023-06-01', 1),
+		(27, 7, 1, 1, '2023-06-05', 1),
+		(28, 8, 1, 1, '2023-06-10', 1),
+		(29, 9, 2, 2, '2023-06-15', 1),
+		(30, 10, 2, 2, '2023-06-20', 1),
+		(31, 11, 2, 2, '2023-06-25', 1),
+		(32, 12, 2, 2, '2023-06-30', 1);
         SET IDENTITY_INSERT solturaDB.sol_userPlans OFF;
 
         SET IDENTITY_INSERT solturaDB.sol_userPermissions ON;
