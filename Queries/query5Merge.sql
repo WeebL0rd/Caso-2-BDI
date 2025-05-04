@@ -5,12 +5,13 @@ SET IDENTITY_INSERT solturaDB.sol_plans ON
 -- Ejemplo con datos de planes personales y familiares
 MERGE INTO solturaDB.sol_plans AS target
 USING (
-    SELECT 21 AS planID, 'Joven Deportista' AS description, 5 AS planTypeID UNION ALL
-    SELECT 11, 'Full Modern Family', 4 UNION ALL
-	SELECT 12, 'Profesional Joven', 4 UNION ALL
-    SELECT 22, 'Familia de Verano', 4 UNION ALL
-    SELECT 23, 'Viajero Frecuente', 6 UNION ALL
-	SELECT 30, 'Plan Ciudadano de Oro', 15 UNION ALL
+    SELECT 21 AS planID, 'Joven Deportista - Atletas' AS description, 5 AS planTypeID UNION ALL
+    SELECT 11, 'Full Modern Family - Familiar Plus', 4 UNION ALL
+	SELECT 12, 'Professional Joven - Carrera', 4 UNION ALL
+	SELECT 7, 'Plan Familiar (4 personas)', 4 UNION ALL
+    SELECT 22, 'Familia de Verano (Vacacional)', 4 UNION ALL
+    SELECT 23, 'Viajero Frecuente - Millas', 6 UNION ALL
+	SELECT 30,  '    Nómada Digital - Remoto Global', 15 UNION ALL
     SELECT 24, 'Nómada Digital', 6
 
 ) AS source
