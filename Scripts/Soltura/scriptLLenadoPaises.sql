@@ -1,37 +1,30 @@
---POBLAR DATOS DE PAÕSES, ESTADOS, CIUDADES, Y MONEDAS
+Ôªø
 use solturaDB
 
 INSERT INTO solturaDB.sol_countries (name)
 VALUES
 ('Costa Rica'),
 ('Estados Unidos'),
-('MÈxico'),
-('EspaÒa');
+('M√©xico'),
+('Espa√±a');
 
 
 INSERT INTO solturaDB.sol_states (name, countryID)
 VALUES
--- Costa Rica
-('San JosÈ', 1),
+('San Jos√©', 1),
 ('Alajuela', 1),
 ('Cartago', 1),
 ('Heredia', 1),
 ('Guanacaste', 1),
 ('Puntarenas', 1),
-('LimÛn', 1),
-
--- Estados Unidos
+('Lim√≥n', 1),
 ('California', 2),
 ('Texas', 2),
 ('Florida', 2),
 ('Nueva York', 2),
-
--- MÈxico
-('Ciudad de MÈxico', 3),
+('Ciudad de M√©xico', 3),
 ('Jalisco', 3),
-('Nuevo LeÛn', 3),
-
--- EspaÒa
+('Nuevo Le√≥n', 3),
 ('Madrid', 4),
 ('Barcelona', 4),
 ('Valencia', 4);
@@ -41,27 +34,18 @@ SET IDENTITY_INSERT solturaDB.sol_city ON;
 
 INSERT INTO solturaDB.sol_city (cityID, stateID, name)
 VALUES
--- San JosÈ, Costa Rica
-(1, 1, 'San JosÈ'),
-(2, 1, 'Escaz˙'),
+(1, 1, 'San Jos√©'),
+(2, 1, 'Escaz√∫'),
 (3, 1, 'Santa Ana'),
-
--- Alajuela, Costa Rica
 (4, 2, 'Alajuela'),
 (5, 2, 'Grecia'),
-(6, 2, 'San RamÛn'),
-
--- California, USA
-(7, 8, 'Los ¡ngeles'),
+(6, 2, 'San Ram√≥n'),
+(7, 8, 'Los √Ångeles'),
 (8, 8, 'San Francisco'),
 (9, 8, 'San Diego'),
-
--- Ciudad de MÈxico, MÈxico
-(10, 12, 'Ciudad de MÈxico'),
-(11, 12, 'Coyoac·n'),
+(10, 12, 'Ciudad de M√©xico'),
+(11, 12, 'Coyoac√°n'),
 (12, 12, 'Polanco'),
-
--- Madrid, EspaÒa
 (13, 15, 'Madrid'),
 (14, 15, 'Alcobendas'),
 (15, 15, 'Las Rozas');
@@ -83,19 +67,19 @@ VALUES
  geometry::Point(9.9326, -84.1826, 4326), 3),
 (4, 'Hollywood Boulevard 123', 'Sector 5', '90028', 
  geometry::Point(34.1016, -118.3389, 4326), 7),
-(5, 'Gran VÌa 78', 'Piso 3', '28013', 
+(5, 'Gran V√≠a 78', 'Piso 3', '28013', 
  geometry::Point(40.4194, -3.7055, 4326), 13);
-
+SET IDENTITY_INSERT solturaDB.sol_addresses OFF;
 
 INSERT INTO solturaDB.sol_currencies (name, acronym, symbol, countryID)
 VALUES
-('ColÛn Costarricense', 'CRC', '?', 1),
-('DÛlar Estadounidense', 'USD', '$', 2);
-SET IDENTITY_INSERT solturaDB.sol_addresses OFF;
+('Col√≥n Costarricense', 'CRC', '‚Ç°', 1),
+('D√≥lar Estadounidense', 'USD', '$', 2);
+
 
 SET IDENTITY_INSERT solturaDB.sol_exchangeCurrencies ON;
 INSERT INTO solturaDB.sol_exchangeCurrencies (exchangeCurrencyID, sourceID, destinyID, startDate, endDate, exchange_rate, enabled, currentExchange)
 VALUES
-(1, 1, 2, '2023-01-01', NULL, 0.0018, 1, 1),
-(2, 2, 1, '2023-01-01', NULL, 555.556, 1, 1);
+(1, 1, 2, '2025-05-01', NULL, 0.0018, 1, 1),
+(2, 2, 1, '2025-05-01', NULL, 555.556, 1, 1);
 

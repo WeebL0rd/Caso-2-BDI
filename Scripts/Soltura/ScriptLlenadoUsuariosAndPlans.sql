@@ -111,14 +111,12 @@ BEGIN
 		(1, 1, 20000.00, 1, GETDATE(), '2023-12-31', 1),
 		(2, 2, 35000.00, 1, GETDATE(), '2023-12-31', 1),
 		(3, 3, 50.00, 2, GETDATE(), '2023-12-31', 1),
-		(4, 1, 35.00, 2, GETDATE(), '2023-12-31', 0),
-		(5, 2, 60.00, 2, GETDATE(), '2023-12-31', 0);
-
+		(4, 4, 35.00, 2, GETDATE(), '2023-12-31', 0),
+		(5, 5, 60.00, 2, GETDATE(), '2023-12-31', 0);
 		SET IDENTITY_INSERT solturaDB.sol_planPrices OFF;
 
 		SET IDENTITY_INSERT solturaDB.sol_schedules ON;
-        INSERT INTO solturaDB.sol_schedules (
-            scheduleID,name,repit,repetitions,recurrencyType,endDate,startDate)
+        INSERT INTO solturaDB.sol_schedules (scheduleID,name,repit,repetitions,recurrencyType,endDate,startDate)
         VALUES
         (1, 'Ejecución Diaria', 1, 0, 1, NULL, '2023-01-01'),
         (2, 'Ejecución Semanal', 1, 12, 2, DATEADD(MONTH, 3, GETDATE()), '2023-01-01'),
@@ -289,13 +287,11 @@ BEGIN
         (23, 23, 2, 2, '2023-03-15', 1),
         (24, 24, 3, 3, '2023-04-25', 1),
         (25, 25, 3, 3, '2023-05-30', 1),
-		(26, 6, 1, 1, '2023-06-01', 1),
-		(27, 7, 1, 1, '2023-06-05', 1),
-		(28, 8, 1, 1, '2023-06-10', 1),
-		(29, 9, 2, 2, '2023-06-15', 1),
-		(30, 10, 2, 2, '2023-06-20', 1),
-		(31, 11, 2, 2, '2023-06-25', 1),
-		(32, 12, 2, 2, '2023-06-30', 1);
+		(26, 26, 1, 1, '2023-06-01', 1),
+		(27, 27, 1, 1, '2023-06-05', 1),
+		(28, 28, 1, 1, '2023-06-10', 1),
+		(29, 29, 2, 2, '2023-06-15', 1),
+		(30, 30, 2, 2, '2023-06-20', 1);
         SET IDENTITY_INSERT solturaDB.sol_userPlans OFF;
 
         SET IDENTITY_INSERT solturaDB.sol_userPermissions ON;
@@ -307,6 +303,26 @@ BEGIN
         (4, 3, 1, 0, GETDATE(), 'carlos.rod', HASHBYTES('SHA2_256', 'perm_prem'), 4),
         (5, 3, 1, 0, GETDATE(), 'ana.mtz', HASHBYTES('SHA2_256', 'perm_prem'), 5);
         SET IDENTITY_INSERT solturaDB.sol_userPermissions OFF;
+		SET IDENTITY_INSERT solturaDB.sol_userPermissions ON;
+        INSERT INTO solturaDB.sol_userPermissions (
+            userPermissionID, permissionID, enabled, deleted, lastPermUpdate, username, checksum, userID
+        )
+        SELECT 
+            ROW_NUMBER() OVER (ORDER BY u.userID) + 5 AS userPermissionID, -- Continuando desde el ID 6
+            CASE 
+                WHEN u.userID = 1 THEN 1 -- Admin tiene todos los permisos
+                WHEN u.userID % 3 = 0 THEN 3 -- Usuarios premium
+                ELSE 2 -- Usuarios estándar
+            END AS permissionID,
+            1 AS enabled,
+            0 AS deleted,
+            GETDATE() AS lastPermUpdate,
+            LEFT(u.email, CHARINDEX('@', u.email) - 1) AS username,
+            HASHBYTES('SHA2_256', 'perm_' + CAST(u.userID AS VARCHAR)) AS checksum,
+            u.userID
+        FROM solturaDB.sol_users u
+        WHERE u.userID > 5; 
+        SET IDENTITY_INSERT solturaDB.sol_userPermissions OFF;
 
         INSERT INTO solturaDB.sol_userAssociateIdentifications(associateID, token, userID, identificationTypeID)
         VALUES
@@ -316,7 +332,20 @@ BEGIN
         (4, HASHBYTES('SHA2_256', 'token012'), 4, 2),
         (5, HASHBYTES('SHA2_256', 'token345'), 5, 2);
 
-        COMMIT TRANSACTION;
+		INSERT INTO solturaDB.sol_userAssociateIdentifications (associateID, token, userID, identificationTypeID)
+        SELECT 
+            ROW_NUMBER() OVER (ORDER BY u.userID) + 5 AS associateID, -- Continuando desde el ID 6
+            HASHBYTES('SHA2_256', 'nfc_qr_token_' + CAST(u.userID AS VARCHAR)) AS token,
+            u.userID,
+            CASE 
+                WHEN u.userID % 2 = 0 THEN 1 
+                ELSE 3
+            END AS identificationTypeID
+        FROM solturaDB.sol_users u
+        WHERE u.userID > 5; 
+
+        
+               COMMIT TRANSACTION;
         PRINT 'Tablas de usuarios pobladas exitosamente';
     END TRY
     BEGIN CATCH
@@ -326,5 +355,8 @@ BEGIN
 END;
 GO
 
+delete from solturaDB.sol_availablePayMethods 
+
 EXEC sp_PopulateUserTables;
+
 

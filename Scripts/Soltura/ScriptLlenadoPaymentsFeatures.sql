@@ -8,7 +8,34 @@ BEGIN
     
     BEGIN TRY
         BEGIN TRANSACTION;
-;
+
+    DECLARE @constraintName NVARCHAR(128);
+    
+    SELECT @constraintName = name
+    FROM sys.key_constraints
+    WHERE parent_object_id = OBJECT_ID('solturaDB.sol_payments')
+    AND type = 'UQ';
+    
+    IF @constraintName IS NOT NULL
+    BEGIN
+        DECLARE @sql NVARCHAR(MAX) = N'ALTER TABLE solturaDB.sol_payments DROP CONSTRAINT [' + @constraintName + ']';
+        EXEC sp_executesql @sql;
+        
+        PRINT 'Restricción UNIQUE eliminada: ' + @constraintName;
+		END
+		ELSE
+		BEGIN
+			PRINT 'No se encontró ninguna restricción UNIQUE en sol_payments.methodID';
+		END
+    
+		COMMIT TRANSACTION;
+		PRINT 'Operación completada exitosamente';
+		END TRY
+		BEGIN CATCH
+			ROLLBACK TRANSACTION;
+			PRINT 'Error al eliminar la restricción UNIQUE: ' + ERROR_MESSAGE();
+		END CATCH
+
 		
 		INSERT INTO solturaDB.sol_payMethod (payMethodID, name, apiURL, secretKey, [key], logoIconURL, enabled)
 		VALUES
@@ -32,17 +59,41 @@ BEGIN
 		 CAST('AES_Encrypted_Key_654' AS VARBINARY(255)), 
 		 'pk_live_876543219', '/assets/icons/cash.png', 1);
 
-    
 
 		SET IDENTITY_INSERT solturaDB.sol_availablePayMethods ON;
-		INSERT INTO solturaDB.sol_availablePayMethods (available_method_id, name, userID, token, expToken, maskAccount, methodID)
+		INSERT INTO solturaDB.sol_availablePayMethods (available_method_id, name, userID, token, expToken, 
+														maskAccount, methodID)
 		VALUES
-		(1, 'VISA ****1234', 1, 'tok_visa_1234', DATEADD(YEAR, 3, GETDATE()), '****1234', 1),
-		(2, 'Cuenta BAC', 1, 'tok_bac_5678', DATEADD(YEAR, 5, GETDATE()), '****5678', 2),
-		(3, 'PayPal Personal', 2, 'tok_paypal_9012', DATEADD(YEAR, 2, GETDATE()), 'user@example.com', 3),
-		(4, 'Mastercard ****4321', 3, 'tok_mc_4321', DATEADD(YEAR, 4, GETDATE()), '****4321', 1),
-		(5, 'Sinpe Móvil', 3, 'tok_sinpe_8765', DATEADD(YEAR, 10, GETDATE()), '8888-8888', 4),
-		(6, 'Efectivo', 4, 'tok_cash_0000', DATEADD(YEAR, 100, GETDATE()), 'Pago en Oficina', 5);
+		(1, 'VISA Platinum ****1234', 1, 'tok_visa_1234', DATEADD(YEAR, 4, GETDATE()), '****-****-****-1234', 1),
+		(2, 'Cuenta BAC Credomatic', 1, 'tok_bac_5678', DATEADD(YEAR, 6, GETDATE()), '****5678 (BAC)', 2),
+		(3, 'PayPal Premium', 2, 'tok_paypal_9012', DATEADD(YEAR, 3, GETDATE()), 'pp_juan', 3),
+		(4, 'Mastercard Gold ****4321', 3, 'tok_mc_4321', DATEADD(YEAR, 5, GETDATE()), '****-****-****-4321', 1),
+		(5, 'Sinpe Móvil BAC', 3, 'tok_sinpe_8765', DATEADD(YEAR, 12, GETDATE()), '8888-8888 (SINPE)', 4),
+		(6, 'Efectivo en Sucursal', 4, 'tok_cash_0000', DATEADD(YEAR, 50, GETDATE()), 'EFECTIVO-001', 5),
+		(7, 'VISA Infinite ****1111', 5, 'tok_visa_1111', DATEADD(YEAR, 4, GETDATE()), '****-****-****-1111', 1),
+		(8, 'Mastercard Black ****2222', 6, 'tok_mc_2222', DATEADD(YEAR, 5, GETDATE()), '****-****-****-2222', 1),
+		(9, 'PayPal Business', 7, 'tok_paypal_biz', DATEADD(YEAR, 3, GETDATE()), 'pp_sofia', 3),
+		(10, 'Cuenta BCR', 8, 'tok_bcr_3333', DATEADD(YEAR, 7, GETDATE()), '****3333 (BCR)', 2),
+		(11, 'Sinpe Móvil BCR', 9, 'tok_sinpe_bcr', DATEADD(YEAR, 10, GETDATE()), '7777-7777', 4),
+		(12, 'Efectivo Express', 10, 'tok_cash_exp', DATEADD(YEAR, 2, GETDATE()), 'EFECTIVO-002', 5),
+		(13, 'VISA Signature ****4444', 11, 'tok_visa_4444', DATEADD(YEAR, 4, GETDATE()), '****-****-****-4444', 1),
+		(14, 'Mastercard Platinum ****5555', 12, 'tok_mc_5555', DATEADD(YEAR, 5, GETDATE()), '****-****-****-5555', 1),
+		(15, 'PayPal Personal', 13, 'tok_paypal_per', DATEADD(YEAR, 3, GETDATE()), 'pp_isabel', 3),
+		(16, 'Cuenta Scotiabank', 14, 'tok_scotia_666', DATEADD(YEAR, 6, GETDATE()), '****6666 (Scotia)', 2),
+		(17, 'Sinpe Móvil BN', 15, 'tok_sinpe_bn', DATEADD(YEAR, 8, GETDATE()), '6666-6666', 4),
+		(18, 'Efectivo VIP', 16, 'tok_cash_vip', DATEADD(YEAR, 3, GETDATE()), 'EFECTIVO-VIP', 5),
+		(19, 'VISA Classic ****7777', 17, 'tok_visa_7777', DATEADD(YEAR, 3, GETDATE()), '****-****-****-7777', 1),
+		(20, 'Mastercard Standard ****8888', 18, 'tok_mc_8888', DATEADD(YEAR, 4, GETDATE()), '****-****-****-8888', 1),
+		(21, 'PayPal Family', 19, 'tok_paypal_fam', DATEADD(YEAR, 2, GETDATE()), 'pp_adriana', 3),
+		(22, 'Cuenta Popular', 20, 'tok_popular_999', DATEADD(YEAR, 5, GETDATE()), '****9999 (Popular)', 2),
+		(23, 'Sinpe Móvil Popular', 21, 'tok_sinpe_pop', DATEADD(YEAR, 7, GETDATE()), '9999-9999', 4),
+		(24, 'Efectivo Rápido', 22, 'tok_cash_fast', DATEADD(YEAR, 1, GETDATE()), 'EFECTIVO-FAST', 5),
+		(25, 'VISA Oro ****0000', 23, 'tok_visa_0000', DATEADD(YEAR, 3, GETDATE()), '****-****-****-0000', 1),
+		(26, 'Mastercard Oro ****1111', 24, 'tok_mc_1111', DATEADD(YEAR, 4, GETDATE()), '****-****-****-1111', 1),
+		(27, 'PayPal Student', 25, 'tok_paypal_std', DATEADD(YEAR, 2, GETDATE()), 'pp_diana', 3),
+		(28, 'Cuenta Nacional', 26, 'tok_nacional_222', DATEADD(YEAR, 5, GETDATE()), '****2222 (Nacional)', 2),
+		(29, 'Sinpe Móvil Nacional', 27, 'tok_sinpe_nac', DATEADD(YEAR, 6, GETDATE()), '2222-2222', 4),
+		(30, 'Efectivo Standard', 28, 'tok_cash_std', DATEADD(YEAR, 2, GETDATE()), 'EFECTIVO-STD', 5);
 		SET IDENTITY_INSERT solturaDB.sol_availablePayMethods OFF;
     
 		SET IDENTITY_INSERT solturaDB.sol_payments ON;
@@ -52,24 +103,99 @@ BEGIN
 		(1, 1, 1, 15000.00, GETDATE(), 1, 'Aprobado', 'AUTH123', 'REF-1001', 
 		 CAST('charge_tok_123' AS VARBINARY(255)), 'Pago membresía básica', NULL, 
 		 CAST('checksum_123' AS VARBINARY(250)), 1),
-    
 		(2, 3, 2, 50.00, DATEADD(DAY, -5, GETDATE()), 1, 'Completado', 'AUTH456', 'REF-1002', 
 		 CAST('charge_tok_456' AS VARBINARY(255)), 'Pago membresía premium', NULL, 
 		 CAST('checksum_456' AS VARBINARY(250)), 3),
-    
 		(3, 4, 1, 20000.00, DATEADD(DAY, -2, GETDATE()), 0, 'Procesando', 'AUTH789', 'REF-1003', 
 		 CAST('charge_tok_789' AS VARBINARY(255)), 'Pago anual', NULL, 
 		 CAST('checksum_789' AS VARBINARY(250)), 4),
-    
 		(4, 2, 1, 10000.00, DATEADD(DAY, -7, GETDATE()), 0, 'Rechazado', 'AUTH321', 'REF-1004', 
 		 CAST('charge_tok_321' AS VARBINARY(255)), 'Pago servicios adicionales', 'Fondos insuficientes', 
 		 CAST('checksum_321' AS VARBINARY(250)), 2),
-    
 		(5, 6, 1, 5000.00, DATEADD(DAY, -1, GETDATE()), 1, 'Completado', 'AUTH654', 'REF-1005', 
 		 CAST('charge_tok_654' AS VARBINARY(255)), 'Pago en oficina', NULL, 
-		 CAST('checksum_654' AS VARBINARY(250)), 5);
-		SET IDENTITY_INSERT solturaDB.sol_payments OFF;
-
+		 CAST('checksum_654' AS VARBINARY(250)), 5),
+		 (6, 7, 2, 75.00, DATEADD(DAY, -10, GETDATE()), 1, 'Aprobado', 'AUTH202', 'REF-1006', 
+		 CAST('charge_tok_202' AS VARBINARY(255)), 'Pago corporativo', NULL, 
+		 CAST('checksum_202' AS VARBINARY(250)), 1),
+    
+		(7, 8, 1, 22000.00, DATEADD(DAY, -7, GETDATE()), 1, 'Completado', 'AUTH303', 'REF-1007', 
+		 CAST('charge_tok_303' AS VARBINARY(255)), 'Pago anual premium', NULL, 
+		 CAST('checksum_303' AS VARBINARY(250)), 1),
+    
+		(8, 9, 1, 12000.00, DATEADD(DAY, -4, GETDATE()), 1, 'Aprobado', 'AUTH404', 'REF-1008', 
+		 CAST('charge_tok_404' AS VARBINARY(255)), 'Pago estudiantil', NULL, 
+		 CAST('checksum_404' AS VARBINARY(250)), 3),
+    
+		(9, 10, 2, 60.00, DATEADD(DAY, -15, GETDATE()), 1, 'Completado', 'AUTH505', 'REF-1009', 
+		 CAST('charge_tok_505' AS VARBINARY(255)), 'Pago promocional', NULL, 
+		 CAST('checksum_505' AS VARBINARY(250)), 3),
+    
+		(10, 11, 1, 25000.00, DATEADD(DAY, -20, GETDATE()), 1, 'Aprobado', 'AUTH606', 'REF-1010', 
+		 CAST('charge_tok_606' AS VARBINARY(255)), 'Pago gobierno', NULL, 
+		 CAST('checksum_606' AS VARBINARY(250)), 2),
+    
+		(11, 12, 1, 17000.00, DATEADD(DAY, -1, GETDATE()), 0, 'Procesando', 'AUTH707', 'REF-1011', 
+		 CAST('charge_tok_707' AS VARBINARY(255)), 'Pago semestral', NULL, 
+		 CAST('checksum_707' AS VARBINARY(250)), 1),
+    
+		(12, 13, 2, 85.00, DATEADD(DAY, -2, GETDATE()), 0, 'Procesando', 'AUTH808', 'REF-1012', 
+		 CAST('charge_tok_808' AS VARBINARY(255)), 'Pago internacional', NULL, 
+		 CAST('checksum_808' AS VARBINARY(250)), 1),
+    
+		(13, 14, 1, 19000.00, DATEADD(DAY, -3, GETDATE()), 0, 'Procesando', 'AUTH909', 'REF-1013', 
+		 CAST('charge_tok_909' AS VARBINARY(255)), 'Pago empresarial', NULL, 
+		 CAST('checksum_909' AS VARBINARY(250)), 2),
+    
+		(14, 15, 1, 8000.00, DATEADD(DAY, -5, GETDATE()), 0, 'Procesando', 'AUTH010', 'REF-1014', 
+		 CAST('charge_tok_010' AS VARBINARY(255)), 'Pago básico', NULL, 
+		 CAST('checksum_010' AS VARBINARY(250)), 4),
+    
+		(15, 16, 2, 45.00, DATEADD(DAY, -8, GETDATE()), 0, 'Procesando', 'AUTH111', 'REF-1015', 
+		 CAST('charge_tok_111' AS VARBINARY(255)), 'Pago prueba', NULL, 
+		 CAST('checksum_111' AS VARBINARY(250)), 3),
+		
+		(16, 17, 1, 10000.00, DATEADD(DAY, -7, GETDATE()), 0, 'Rechazado', 'AUTH222', 'REF-1016', 
+		 CAST('charge_tok_222' AS VARBINARY(255)), 'Pago servicios', 'Fondos insuficientes', 
+		 CAST('checksum_222' AS VARBINARY(250)), 2),
+    
+		(17, 18, 1, 21000.00, DATEADD(DAY, -10, GETDATE()), 0, 'Rechazado', 'AUTH333', 'REF-1017', 
+		 CAST('charge_tok_333' AS VARBINARY(255)), 'Pago anual plus', 'Tarjeta expirada', 
+		 CAST('checksum_333' AS VARBINARY(250)), 1),
+    
+		(18, 19, 2, 55.00, DATEADD(DAY, -12, GETDATE()), 0, 'Rechazado', 'AUTH444', 'REF-1018', 
+		 CAST('charge_tok_444' AS VARBINARY(255)), 'Pago membresía', 'Límite excedido', 
+		 CAST('checksum_444' AS VARBINARY(250)), 3),
+    
+		(19, 20, 1, 13000.00, DATEADD(DAY, -15, GETDATE()), 0, 'Rechazado', 'AUTH555', 'REF-1019', 
+		 CAST('charge_tok_555' AS VARBINARY(255)), 'Pago familiar', 'Cuenta suspendida', 
+		 CAST('checksum_555' AS VARBINARY(250)), 4),
+    
+		(20, 21, 1, 9000.00, DATEADD(DAY, -18, GETDATE()), 0, 'Rechazado', 'AUTH666', 'REF-1020', 
+		 CAST('charge_tok_666' AS VARBINARY(255)), 'Pago estudiantil', 'Autenticación fallida', 
+		 CAST('checksum_666' AS VARBINARY(250)), 5),
+    
+		-- Pagos varios (21-25)
+		(21, 22, 2, 65.00, DATEADD(DAY, -22, GETDATE()), 1, 'Completado', 'AUTH777', 'REF-1021', 
+		 CAST('charge_tok_777' AS VARBINARY(255)), 'Pago promoción', NULL, 
+		 CAST('checksum_777' AS VARBINARY(250)), 3),
+    
+		(22, 23, 1, 28000.00, DATEADD(DAY, -25, GETDATE()), 1, 'Aprobado', 'AUTH888', 'REF-1022', 
+		 CAST('charge_tok_888' AS VARBINARY(255)), 'Pago corporativo plus', NULL, 
+		 CAST('checksum_888' AS VARBINARY(250)), 1),
+    
+		(23, 24, 1, 7500.00, DATEADD(DAY, -30, GETDATE()), 0, 'Reembolsado', 'AUTH999', 'REF-1023', 
+		 CAST('charge_tok_999' AS VARBINARY(255)), 'Pago especial', 'Reembolsado por solicitud', 
+		 CAST('checksum_999' AS VARBINARY(250)), 2),
+    
+		(24, 25, 2, 95.00, DATEADD(DAY, -35, GETDATE()), 1, 'Completado', 'AUTH000', 'REF-1024', 
+		 CAST('charge_tok_000' AS VARBINARY(255)), 'Pago internacional plus', NULL, 
+		 CAST('checksum_000' AS VARBINARY(250)), 1),
+    
+		(25, 1, 1, 30000.00, DATEADD(DAY, -40, GETDATE()), 1, 'Aprobado', 'AUTH121', 'REF-1025', 
+		 CAST('charge_tok_121' AS VARBINARY(255)), 'Pago anual gold', NULL, 
+		 CAST('checksum_121' AS VARBINARY(250)), 1);
+			SET IDENTITY_INSERT solturaDB.sol_payments OFF;
 
 		SET IDENTITY_INSERT solturaDB.sol_deals ON;
 		INSERT INTO solturaDB.sol_deals (dealId,partnerId,dealDescription,sealDate,endDate,solturaComission,discount,isActive)
@@ -174,7 +300,6 @@ BEGIN
         (5, 'Pago de factura');
         SET IDENTITY_INSERT solturaDB.sol_planTransactionTypes OFF;
 
-        -- 2. Tipos de transacción general
         SET IDENTITY_INSERT solturaDB.sol_transactionTypes ON;
         INSERT INTO solturaDB.sol_transactionTypes (transactionTypeID, name)
         VALUES
@@ -185,7 +310,6 @@ BEGIN
         (5, 'Cargo recurrente');
         SET IDENTITY_INSERT solturaDB.sol_transactionTypes OFF;
 
-        -- 3. Subtipos de transacción
         SET IDENTITY_INSERT solturaDB.sol_transactionSubtypes ON;
         INSERT INTO solturaDB.sol_transactionSubtypes (transactionSubtypeID, name)
         VALUES
@@ -196,7 +320,6 @@ BEGIN
         (5, 'Pago móvil');
         SET IDENTITY_INSERT solturaDB.sol_transactionSubtypes OFF;
 
-        -- 4. Transacciones de plan
         SET IDENTITY_INSERT solturaDB.sol_planTransactions ON;
         INSERT INTO solturaDB.sol_planTransactions (planTransactionID,planTransactionTypeID,date,postTime,amount,checksum,userID,associateID,partnerAddressId)
         VALUES
@@ -207,7 +330,6 @@ BEGIN
         (5, 5, '2023-05-12', GETDATE(), 80.00, 0x123460, 5, 5, 5);
         SET IDENTITY_INSERT solturaDB.sol_planTransactions OFF;
 
-        -- 5. Transacciones generales
         SET IDENTITY_INSERT solturaDB.sol_transactions ON;
         INSERT INTO solturaDB.sol_transactions (transactionsID,payment_id,date,postTime,refNumber,user_id, checksum,exchangeRate,convertedAmount,
 												transactionTypesID,transactionSubtypesID,amount,exchangeCurrencyID)
@@ -219,6 +341,41 @@ BEGIN
         (5, 5, '2023-05-12', GETDATE(), 'ADJ-001', 5, 0x654325, 1.0, 50.00, 3, 4, 50.00, 1);
         SET IDENTITY_INSERT solturaDB.sol_transactions OFF;
 
+		SET IDENTITY_INSERT solturaDB.sol_balances ON;
+		INSERT INTO solturaDB.sol_balances (balanceID,amount,expirationDate,lastUpdate,balanceTypeID,planFeatureID,userId)
+		VALUES
+		(1, 15000.00, DATEADD(MONTH, 3, GETDATE()), GETDATE(), 1, 1, 1),
+		(2, 12000.00, DATEADD(MONTH, 2, GETDATE()), GETDATE(), 2, 3, 2),
+		(3, 18000.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 1, 2, 3),
+		(4, 9000.00, DATEADD(MONTH, 4, GETDATE()), GETDATE(), 3, 5, 4),
+		(5, 21000.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 1, 6, 5),
+		(6, 7500.00, DATEADD(MONTH, 1, GETDATE()), GETDATE(), 2, 4, 6),
+		(7, 16500.00, DATEADD(MONTH, 6, GETDATE()), GETDATE(), 4, 7, 7),
+		(8, 13500.00, DATEADD(MONTH, 3, GETDATE()), GETDATE(), 1, 7, 8),
+		(9, 19500.00, DATEADD(YEAR, 2, GETDATE()), GETDATE(), 2, 3, 9),
+		(10, 10500.00, DATEADD(MONTH, 5, GETDATE()), GETDATE(), 1, 1, 10),
+		(11, 22500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 3, 5, 11),
+		(12, 8500.00, DATEADD(MONTH, 2, GETDATE()), GETDATE(), 2, 4, 12),
+		(13, 17500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 1, 2, 13),
+		(14, 11500.00, DATEADD(MONTH, 7, GETDATE()), GETDATE(), 4, 7, 14),
+		(15, 24500.00, DATEADD(YEAR, 2, GETDATE()), GETDATE(), 1, 6, 15),
+		(16, 9500.00, DATEADD(MONTH, 1, GETDATE()), GETDATE(), 2, 3, 16),
+		(17, 15500.00, DATEADD(MONTH, 4, GETDATE()), GETDATE(), 1, 2, 17),
+		(18, 20500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 3, 5, 18),
+		(19, 12500.00, DATEADD(MONTH, 3, GETDATE()), GETDATE(), 2, 4, 19),
+		(20, 18500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 1, 1, 20),
+		(21, 6500.00, DATEADD(MONTH, 2, GETDATE()), GETDATE(), 4, 7, 21),
+		(22, 23500.00, DATEADD(YEAR, 2, GETDATE()), GETDATE(), 1, 2, 22),
+		(23, 14500.00, DATEADD(MONTH, 5, GETDATE()), GETDATE(), 2, 3, 23),
+		(24, 9500.00, DATEADD(MONTH, 1, GETDATE()), GETDATE(), 1, 6, 24),
+		(25, 21500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 3, 5, 25),
+		(26, 13500.00, DATEADD(MONTH, 4, GETDATE()), GETDATE(), 1, 1, 26),
+		(27, 17500.00, DATEADD(YEAR, 1, GETDATE()), GETDATE(), 2, 4, 27),
+		(28, 10500.00, DATEADD(MONTH, 6, GETDATE()), GETDATE(), 4, 7, 28),
+		(29, 25500.00, DATEADD(YEAR, 2, GETDATE()), GETDATE(), 1, 1, 29),
+		(30, 8500.00, DATEADD(MONTH, 2, GETDATE()), GETDATE(), 2, 3, 30);
+		SET IDENTITY_INSERT solturaDB.sol_balances OFF;
+
         COMMIT TRANSACTION;
         PRINT 'Todas las tablas fueron pobladas exitosamente con el formato solicitado';
     END TRY
@@ -228,6 +385,12 @@ BEGIN
     END CATCH
 END;
 GO
-
--- Ejecutar el procedimiento
 EXEC sp_PopulateAllTablesWithFormat;
+
+
+
+
+
+
+
+
