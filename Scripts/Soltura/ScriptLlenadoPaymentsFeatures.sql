@@ -1,14 +1,10 @@
 ﻿USE solturaDB
 GO
 
-CREATE OR ALTER PROCEDURE sp_PopulateAllTablesWithFormat
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    BEGIN TRY
-        BEGIN TRANSACTION;
 
+BEGIN TRY
+    BEGIN TRANSACTION;
+    
     DECLARE @constraintName NVARCHAR(128);
     
     SELECT @constraintName = name
@@ -22,21 +18,29 @@ BEGIN
         EXEC sp_executesql @sql;
         
         PRINT 'Restricción UNIQUE eliminada: ' + @constraintName;
-		END
-		ELSE
-		BEGIN
-			PRINT 'No se encontró ninguna restricción UNIQUE en sol_payments.methodID';
-		END
+    END
+    ELSE
+    BEGIN
+        PRINT 'No se encontró ninguna restricción UNIQUE en sol_payments.methodID';
+    END
     
-		COMMIT TRANSACTION;
-		PRINT 'Operación completada exitosamente';
-		END TRY
-		BEGIN CATCH
-			ROLLBACK TRANSACTION;
-			PRINT 'Error al eliminar la restricción UNIQUE: ' + ERROR_MESSAGE();
-		END CATCH
+    COMMIT TRANSACTION;
+    PRINT 'Operación completada exitosamente';
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    PRINT 'Error al eliminar la restricción UNIQUE: ' + ERROR_MESSAGE();
+END CATCH
+GO
 
-		
+CREATE OR ALTER PROCEDURE sp_PopulateTables
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+	
 		INSERT INTO solturaDB.sol_payMethod (payMethodID, name, apiURL, secretKey, [key], logoIconURL, enabled)
 		VALUES
 		(1, 'Tarjeta de Crédito', 'https://api.payments.com/creditcard', 
@@ -385,8 +389,7 @@ BEGIN
     END CATCH
 END;
 GO
-EXEC sp_PopulateAllTablesWithFormat;
-
+EXEC sp_PopulateTables;
 
 
 
