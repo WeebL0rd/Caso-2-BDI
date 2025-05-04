@@ -82,4 +82,7 @@ INSERT INTO solturaDB.sol_exchangeCurrencies (exchangeCurrencyID, sourceID, dest
 VALUES
 (1, 1, 2, '2025-05-01', NULL, 0.0018, 1, 1),
 (2, 2, 1, '2025-05-01', NULL, 555.556, 1, 1);
+(1, 1, 2, '2023-01-01', NULL, 0.0018, 1, 1),
+(2, 2, 1, '2023-01-01', NULL, 555.556, 1, 1);
+SET IDENTITY_INSERT solturaDB.sol_exchangeCurrencies OFF;
 

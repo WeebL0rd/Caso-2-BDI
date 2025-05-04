@@ -296,6 +296,7 @@ JOIN pay_user_roles ur ON u.user_id = ur.user_id
 JOIN pay_role_permissions rp ON ur.role_id = rp.role_id;
 
 -- Verificación de inserciones
+SELECT * FROM pay_states;
 SELECT * FROM pay_roles;
 SELECT * FROM pay_permissions;
 SELECT * FROM pay_role_permissions;
