@@ -1,8 +1,6 @@
 --15. UNION entre planes individuales y empresariales por ejemplo. 
 USE solturaDB;
 GO
-
--- Reporte combinado de planes individuales y familiares
 SELECT 
     p.planID,
     p.description AS plan_name,
@@ -15,9 +13,7 @@ SELECT
 FROM solturaDB.sol_plans p
 JOIN solturaDB.sol_planTypes pt ON p.planTypeID = pt.planTypeID AND pt.type LIKE '%Básico%'
 JOIN solturaDB.sol_planPrices pp ON p.planID = pp.planID AND pp."current" = 1
-
 UNION ALL
-
 SELECT 
     p.planID,
     p.description AS plan_name,
@@ -30,7 +26,6 @@ SELECT
 FROM solturaDB.sol_plans p
 JOIN solturaDB.sol_planTypes pt ON p.planTypeID = pt.planTypeID AND pt.type LIKE '%Familiar%'
 JOIN solturaDB.sol_planPrices pp ON p.planID = pp.planID AND pp."current" = 1
-
 ORDER BY plan_category, monthly_price DESC;
 GO
 

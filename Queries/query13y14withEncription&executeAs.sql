@@ -1,5 +1,6 @@
--- 13. WITH ENCRYPTION demostrar que es posible encriptar un SP y que no lo violenten.
+-- 13. WITH ENCRYPTION demostrar que es posible encriptar un SP y que no lo violenten.    
 -- 14. EXECUTE AS para ejecutar SP con impersonificación, es posible? qué significa eso
+--muchos comentarios por que me costo entenderlo hasta a mi :(
 USE solturaDB;
 GO
 -- Tbabla de ejemplos
@@ -40,7 +41,6 @@ SELECT
 FROM sys.sql_modules
 WHERE object_id = OBJECT_ID('sp_demo_secure');
 GO
-
 PRINT ''
 PRINT ' Ejecutar procedimiento ( como app_executor con impersonificación , funciona) ';
 EXEC sp_demo_secure;
@@ -56,7 +56,6 @@ END
 GO
 CREATE USER usuario_tester WITHOUT LOGIN;
 GO
-
 -- Probar acceso directo a la tabla desde un usuario sin permisos
 EXECUTE AS USER = 'usuario_tester';
 PRINT ' Usuario limitado intentando leer la tabla directamente (debe fallar) ';

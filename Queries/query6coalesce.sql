@@ -1,8 +1,6 @@
 --6.COALESCE para manejar valores nulos en configuraciones de usuario.
-
 USE solturaDB;
 GO
-
 SELECT 
     u.userID,
     u.firstName,

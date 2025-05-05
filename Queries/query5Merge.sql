@@ -2,7 +2,6 @@
 USE solturaDB;
 GO
 SET IDENTITY_INSERT solturaDB.sol_plans ON
--- Ejemplo con datos de planes personales y familiares
 MERGE INTO solturaDB.sol_plans AS target
 USING (
     SELECT 21 AS planID, 'Joven Deportista - Atletas' AS description, 5 AS planTypeID UNION ALL
@@ -13,7 +12,6 @@ USING (
     SELECT 23, 'Viajero Frecuente - Millas', 6 UNION ALL
 	SELECT 30,  '    Nómada Digital - Remoto Global', 15 UNION ALL
     SELECT 24, 'Nómada Digital', 6
-
 ) AS source
 ON target.planID = source.planID
 WHEN MATCHED AND (target.description <> source.description OR target.planTypeID <> source.planTypeID) THEN

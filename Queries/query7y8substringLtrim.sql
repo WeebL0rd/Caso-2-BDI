@@ -16,5 +16,3 @@ SELECT
     END AS category_info
 FROM solturaDB.sol_plans;
 GO
-
-select * from solturaDB.sol_plans

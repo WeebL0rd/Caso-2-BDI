@@ -7,17 +7,12 @@ ALTER COLUMN trace NVARCHAR(100) NULL;
 ALTER TABLE solturaDB.sol_logs
 ALTER COLUMN checksum varbinary(250) NULL;
 GO
-
-
-
-
 CREATE OR ALTER TRIGGER tr_log_payment_insert_3
 ON solturaDB.sol_payments
 AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
     INSERT INTO solturaDB.sol_logs (
         description, 
         postTime, 

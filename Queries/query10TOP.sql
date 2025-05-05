@@ -1,7 +1,6 @@
 --10. TOP para mostrar top 5 planes más populares.
 USE solturaDB;
 GO
-
 SELECT TOP 5
     p.planID,
     p.description AS plan_name,
