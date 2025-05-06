@@ -1,7 +1,7 @@
 USE solturaDB;
 GO
 
-DECLARE @UserID INT = 1; -- Ejemplo: Obtener información para el usuario con ID 2
+DECLARE @UserID INT = 1;
 
 SELECT
     (SELECT TOP 1
