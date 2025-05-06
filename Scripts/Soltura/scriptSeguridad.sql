@@ -150,28 +150,25 @@ SELECT * FROM solturaDB.sol_partners;
 
 REVERT;
 
-select * from solturaDB.sol_balances;
-
-
 
 
 -- PARA BORRAR
-USE solturaDB;
-GRANT SELECT ON solturaDB.sol_payments TO PUBLIC;
+--USE solturaDB;
+--GRANT SELECT ON solturaDB.sol_payments TO PUBLIC;
 
-DROP PROCEDURE solturaDB.SP_verDealsdePartners;
+--DROP PROCEDURE solturaDB.SP_verDealsdePartners;
 
-DROP ROLE AccesoRestringido;
-DROP ROLE SoloLectura;
+--DROP ROLE AccesoRestringido;
+--DROP ROLE SoloLectura;
 
-DROP USER usuario;
-DROP USER empleado;
-DROP USER manager;
+--DROP USER usuario;
+--DROP USER empleado;
+--DROP USER manager;
 
-USE master;
+--USE master;
 
-DROP LOGIN usuario;
-DROP LOGIN empleado;
-DROP LOGIN manager;
+--DROP LOGIN usuario;
+--DROP LOGIN empleado;
+--DROP LOGIN manager;
 
 
