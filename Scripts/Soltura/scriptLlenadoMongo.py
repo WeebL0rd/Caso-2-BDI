@@ -8,7 +8,7 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["soltura"]
 
 # ─── FUNCIÓN: Insertar usuarios ─────────────────────────────────────────────
-def insertar_usuarios():
+def insertarUsuarios():
     usuarios = [
         {
             "_id": ObjectId(),
@@ -59,7 +59,7 @@ def insertar_usuarios():
     return usuarios
 
 # ─── FUNCIÓN: Insertar departamentos ────────────────────────────────────────
-def insertar_departamentos():
+def insertarDepartamentos():
     departamentos = [
         {
             "_id": ObjectId(),
@@ -86,7 +86,7 @@ def insertar_departamentos():
     return departamentos
 
 # ─── FUNCIÓN: Insertar agentes ──────────────────────────────────────────────
-def insertar_agentes(departamentos):
+def insertarAgentes(departamentos):
     agentes = [
         {
             "_id": ObjectId(),
@@ -122,7 +122,7 @@ def insertar_agentes(departamentos):
     db.agentes.insert_many(agentes)
     return agentes
 
-def insertar_casos(usuarios, agentes):
+def insertarCasos(usuarios, agentes):
     casos = [
         {
             "CasoID": "C-1001",
@@ -182,10 +182,208 @@ def insertar_casos(usuarios, agentes):
     db.casos.insert_many(casos)
 
 
-# ─── EJECUCIÓN PRINCIPAL ────────────────────────────────────────────────────
+# ─── FUNCIÓN: Insertar beneficios ──────────────────────────────────────────
+def insertarBeneficios():
+    beneficios = [
+        {
+            "nombre": "Gimnasio SmartFit",
+            "tipo": "salud",
+            "descripcion": "Acceso a SmartFit en horarios regulares",
+            "unidad": "horas",
+            "cantidad": 6,
+            "frecuencia": "semanal",
+            "activo": True
+        },
+        {
+            "nombre": "Lavandería y aplanchado",
+            "tipo": "hogar",
+            "descripcion": "Servicio completo de lavandería y planchado",
+            "unidad": "servicios",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Limpieza básica de hogar",
+            "tipo": "hogar",
+            "descripcion": "Limpieza básica con personal capacitado",
+            "unidad": "días",
+            "cantidad": 2,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Combustible",
+            "tipo": "movilidad",
+            "descripcion": "Monto mensual para combustible gas o diésel",
+            "unidad": "CRC",
+            "cantidad": 50000,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Corte de pelo (Tito Barbers)",
+            "tipo": "estética",
+            "descripcion": "Corte profesional en Tito Barbers",
+            "unidad": "cortes",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Cenas seleccionadas",
+            "tipo": "alimentación",
+            "descripcion": "Cenas de restaurantes aliados",
+            "unidad": "cenas",
+            "cantidad": 2,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Almuerzos seleccionados",
+            "tipo": "alimentación",
+            "descripcion": "Almuerzos de restaurantes aliados",
+            "unidad": "almuerzos",
+            "cantidad": 4,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Plan móvil (Kolbi)",
+            "tipo": "tecnología",
+            "descripcion": "Plan de datos y llamadas ilimitadas",
+            "unidad": "servicio",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Parqueo",
+            "tipo": "movilidad",
+            "descripcion": "Horas de parqueo en puntos seleccionados",
+            "unidad": "horas",
+            "cantidad": 10,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Grooming para mascota",
+            "tipo": "mascotas",
+            "descripcion": "Servicio de grooming para una mascota",
+            "unidad": "servicio",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Revisión veterinaria",
+            "tipo": "mascotas",
+            "descripcion": "Consulta veterinaria básica",
+            "unidad": "consulta",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Clases de natación o fútbol (niños)",
+            "tipo": "educación",
+            "descripcion": "Clases recreativas para niños",
+            "unidad": "clases",
+            "cantidad": 3,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Uber Eats",
+            "tipo": "alimentación",
+            "descripcion": "Pedidos con envío gratis y 20% descuento",
+            "unidad": "pedidos",
+            "cantidad": 10,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "nombre": "Uber Rides",
+            "tipo": "movilidad",
+            "descripcion": "Saldo para viajes en Uber",
+            "unidad": "CRC",
+            "cantidad": 7000,
+            "frecuencia": "mensual",
+            "activo": True
+        }
+    ]
+    return db.beneficios.insert_many(beneficios).inserted_ids
+
+# ─── FUNCIÓN: Insertar paquetes ────────────────────────────────────────────
+def insertarPaquetes(IdsBeneficios):
+    paquetes = [
+        {
+            "titulo": "Paquete Profesional Joven",
+            "descripcion": "Ideal para profesionales activos que buscan conveniencia",
+            "beneficios": IdsBeneficios[0:9],
+            "precioMensual": 25000,
+            "moneda": "CRC",
+            "maxPersonas": 1,
+            "disponible": True,
+            "fechaCreacion": datetime.utcnow(),
+            "fechaUltimaActualizacion": datetime.utcnow()
+        },
+        {
+            "titulo": "Paquete Full Modern Family",
+            "descripcion": "Pensado para familias modernas que buscan bienestar integral",
+            "beneficios": IdsBeneficios[8:] + IdsBeneficios[9:],
+            "precioMensual": 45000,
+            "moneda": "CRC",
+            "maxPersonas": 4,
+            "disponible": True,
+            "fechaCreacion": datetime.utcnow(),
+            "fechaUltimaActualizacion": datetime.utcnow()
+        }
+    ]
+    return db.paquetesInformativos.insert_many(paquetes).inserted_ids
+
+
+# ─── FUNCIÓN: Insertar Reviews con Respuestas ────────────────────────────────
+def insertarReviewsConRespuestas(usuarios, paquetes):
+    reviews = [
+        {
+            "usuarioID": usuarios[0]["_id"],
+            "paqueteID": paquetes[0]["_id"],
+            "calificacion": 4,
+            "comentario": "Buen paquete, pero me gustaría más soporte técnico.",
+            "fecha": datetime.now(),
+            "respuestas": [
+                {
+                    "usuarioID": usuarios[1]["_id"],
+                    "comentario": "Entiendo lo que dices, el soporte técnico podría mejorar.",
+                    "fecha": datetime.now()
+                },
+                {
+                    "usuarioID": usuarios[2]["_id"],
+                    "comentario": "¿Qué tipo de soporte crees que falta? Podría ayudar.",
+                    "fecha": datetime.now()
+                }
+            ]
+        },
+        {
+            "usuarioID": usuarios[1]["_id"],
+            "paqueteID": paquetes[1]["_id"],
+            "calificacion": 5,
+            "comentario": "Excelente servicio, totalmente recomendado.",
+            "fecha": datetime.now(),
+            "respuestas": []
+        }
+    ]
+    db.reviews.insert_many(reviews)
+    return reviews
+
+# ─── EJECUCIÓN DEL SCRIPT COMPLETO ─────────────────────────────────────────
 if __name__ == "__main__":
-    usuarios = insertar_usuarios()
-    departamentos = insertar_departamentos()
-    agentes = insertar_agentes(departamentos)
-    insertar_casos(usuarios, agentes)
+    usuarios = insertarUsuarios()
+    departamentos = insertarDepartamentos()
+    agentes = insertarAgentes(departamentos)
+    insertarCasos(usuarios, agentes)
+    beneficio_ids = insertarBeneficios()
+    paquetes = insertarPaquetes(beneficio_ids)
+    insertarReviewsConRespuestas(usuarios, paquetes)
     print("Datos insertados correctamente.")
