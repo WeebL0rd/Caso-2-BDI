@@ -324,6 +324,9 @@ BEGIN
         WHERE u.userID > 5; 
         SET IDENTITY_INSERT solturaDB.sol_userPermissions OFF;
 
+		ALTER TABLE solturaDB.sol_userAssociateIdentifications
+		ALTER COLUMN token VARBINARY(MAX) NOT NULL;
+
         INSERT INTO solturaDB.sol_userAssociateIdentifications(associateID, token, userID, identificationTypeID)
         VALUES
         (1, HASHBYTES('SHA2_256', 'token123'), 1, 1),
