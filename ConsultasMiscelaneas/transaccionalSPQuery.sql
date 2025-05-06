@@ -1,10 +1,9 @@
+--Crear un procedimiento almacenado transaccional que realice una operación del sistema, relacionado a subscripciones, pagos, servicios, transacciones o planes, y que dicha operación requiera insertar y/o actualizar al menos 3 tablas.
 USE solturaDB;
 GO
-
 IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'sp_RenovarSuscripcionAutomatica')
 DROP PROCEDURE dbo.sp_RenovarSuscripcionAutomatica;
 GO
-
 CREATE PROCEDURE dbo.sp_RenovarSuscripcionAutomatica
     @userID INT,
     @planPriceID INT,
@@ -82,7 +81,6 @@ BEGIN
             );
             SET @userPlanID = SCOPE_IDENTITY();
         END
-        -- Insertar transacción con todos los campos
         INSERT INTO solturaDB.sol_transactions (
             payment_id, date, postTime, refNumber,
             user_id, checksum, exchangeRate, convertedAmount,

@@ -1,3 +1,4 @@
+--Crear una vista indexada con al menos 4 tablas (ej. usuarios, suscripciones, pagos, servicios). La vista debe ser dinámica, no una vista materializada con datos estáticos. Demuestre que si es dinámica.
 USE solturaDB;
 GO
 -- crea la vista con SCHEMABINDING
