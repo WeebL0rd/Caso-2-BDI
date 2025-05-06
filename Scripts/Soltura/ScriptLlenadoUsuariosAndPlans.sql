@@ -327,25 +327,40 @@ BEGIN
 		ALTER TABLE solturaDB.sol_userAssociateIdentifications
 		ALTER COLUMN token VARBINARY(MAX) NOT NULL;
 
-        INSERT INTO solturaDB.sol_userAssociateIdentifications(associateID, token, userID, identificationTypeID)
-        VALUES
-        (1, HASHBYTES('SHA2_256', 'token123'), 1, 1),
-        (2, HASHBYTES('SHA2_256', 'token456'), 2, 1),
-        (3, HASHBYTES('SHA2_256', 'token789'), 3, 1),
-        (4, HASHBYTES('SHA2_256', 'token012'), 4, 2),
-        (5, HASHBYTES('SHA2_256', 'token345'), 5, 2);
+        OPEN SYMMETRIC KEY SolturaLlaveSimetrica  
+		DECRYPTION BY CERTIFICATE CertificadoDeCifrado;
 
+		-- 2. Insertar manualmente con tokens personalizados según el tipo
+		INSERT INTO solturaDB.sol_userAssociateIdentifications(associateID, token, userID, identificationTypeID)
+		VALUES
+		(1, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'NFC_TAG_STD_001')), 1, 1),
+		(2, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'NFC_TAG_CUSTOM_002')), 2, 2),
+		(3, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'QR_V1_ABC123')), 3, 3),
+		(4, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'QR_V2_LOGO_DEF456')), 4, 4),
+		(5, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'DYN_QR_789URL')), 5, 5);
+
+		-- 3. Insertar automáticamente con tokens distintos por tipo
 		INSERT INTO solturaDB.sol_userAssociateIdentifications (associateID, token, userID, identificationTypeID)
-        SELECT 
-            ROW_NUMBER() OVER (ORDER BY u.userID) + 5 AS associateID, -- Continuando desde el ID 6
-            HASHBYTES('SHA2_256', 'nfc_qr_token_' + CAST(u.userID AS VARCHAR)) AS token,
-            u.userID,
-            CASE 
-                WHEN u.userID % 2 = 0 THEN 1 
-                ELSE 3
-            END AS identificationTypeID
-        FROM solturaDB.sol_users u
-        WHERE u.userID > 5; 
+		SELECT 
+			ROW_NUMBER() OVER (ORDER BY u.userID) + 5 AS associateID,
+			EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), 
+				CONVERT(varchar,
+					CASE 
+						WHEN u.userID % 2 = 0 THEN 'NFC_STD_UID_' + CAST(u.userID AS varchar)
+						ELSE 'QR_V1_TOKEN_' + CAST(u.userID AS varchar)
+					END
+				)
+			) AS token,
+			u.userID,
+			CASE 
+				WHEN u.userID % 2 = 0 THEN 1  -- NFC Tag - Formato estándar
+				ELSE 3                        -- Código QR - Versión 1
+			END AS identificationTypeID
+		FROM solturaDB.sol_users u
+		WHERE u.userID > 5;
+
+-- 4. Cerrar la llave simétrica
+CLOSE SYMMETRIC KEY SolturaLlaveSimetrica;
 
         
                COMMIT TRANSACTION;
