@@ -1,14 +1,11 @@
 ﻿
-use solturaDB
-
+USE solturaDB
 INSERT INTO solturaDB.sol_countries (name)
 VALUES
 ('Costa Rica'),
 ('Estados Unidos'),
 ('México'),
 ('España');
-
-
 INSERT INTO solturaDB.sol_states (name, countryID)
 VALUES
 ('San José', 1),
@@ -28,10 +25,7 @@ VALUES
 ('Madrid', 4),
 ('Barcelona', 4),
 ('Valencia', 4);
-
-
 SET IDENTITY_INSERT solturaDB.sol_city ON;
-
 INSERT INTO solturaDB.sol_city (cityID, stateID, name)
 VALUES
 (1, 1, 'San José'),
@@ -51,12 +45,7 @@ VALUES
 (15, 15, 'Las Rozas');
 
 SET IDENTITY_INSERT solturaDB.sol_city OFF;
-
-
-
-
 SET IDENTITY_INSERT solturaDB.sol_addresses ON;
-
 INSERT INTO solturaDB.sol_addresses (addressid, line1, line2, zipcode, geoposition, cityID)
 VALUES
 (1, 'Avenida Central', 'Calle 25', '10101', 
@@ -70,13 +59,10 @@ VALUES
 (5, 'Gran Vía 78', 'Piso 3', '28013', 
  geometry::Point(40.4194, -3.7055, 4326), 13);
 SET IDENTITY_INSERT solturaDB.sol_addresses OFF;
-
 INSERT INTO solturaDB.sol_currencies (name, acronym, symbol, countryID)
 VALUES
 ('Colón Costarricense', 'CRC', '₡', 1),
 ('Dólar Estadounidense', 'USD', '$', 2);
-
-
 SET IDENTITY_INSERT solturaDB.sol_exchangeCurrencies ON;
 INSERT INTO solturaDB.sol_exchangeCurrencies (exchangeCurrencyID, sourceID, destinyID, startDate, endDate, exchange_rate, enabled, currentExchange)
 VALUES
