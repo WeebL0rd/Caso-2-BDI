@@ -1,21 +1,15 @@
 USE solturaDB
 GO
-
-
 INSERT INTO solturaDB.sol_partners_identifications_types(name) 
 VALUES 
 ('Jurídico'),
 ('Cédula'),
 ('Gobierno')
-
-
 INSERT INTO solturaDB.sol_enterprise_size (size) 
 VALUES 
 ('Pequeña'),
 ('Mediana'),
 ('Grande')
-
-
 SET IDENTITY_INSERT solturaDB.sol_partners ON;
 INSERT INTO solturaDB.sol_partners (partnerId, name, registerDate, state, identificationtypeId, enterpriseSizeid, identification) 
 VALUES
@@ -27,7 +21,6 @@ VALUES
 (6, 'Cinépolis', GETDATE(), 1, 1, 3, '3-106-321654'),
 (7, 'McDonalds', GETDATE(), 1, 1, 2, '3-107-098324');
 SET IDENTITY_INSERT solturaDB.sol_partners OFF;
-
 INSERT INTO solturaDB.sol_partner_addresses (partnerId, addressid)
 VALUES
 (1, 1),  

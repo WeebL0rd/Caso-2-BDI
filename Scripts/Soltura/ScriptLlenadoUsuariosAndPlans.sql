@@ -330,7 +330,6 @@ BEGIN
         OPEN SYMMETRIC KEY SolturaLlaveSimetrica  
 		DECRYPTION BY CERTIFICATE CertificadoDeCifrado;
 
-		-- 2. Insertar manualmente con tokens personalizados según el tipo
 		INSERT INTO solturaDB.sol_userAssociateIdentifications(associateID, token, userID, identificationTypeID)
 		VALUES
 		(1, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'NFC_TAG_STD_001')), 1, 1),
@@ -339,7 +338,6 @@ BEGIN
 		(4, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'QR_V2_LOGO_DEF456')), 4, 4),
 		(5, EncryptByKey(Key_GUID('SolturaLlaveSimetrica'), CONVERT(varchar, 'DYN_QR_789URL')), 5, 5);
 
-		-- 3. Insertar automáticamente con tokens distintos por tipo
 		INSERT INTO solturaDB.sol_userAssociateIdentifications (associateID, token, userID, identificationTypeID)
 		SELECT 
 			ROW_NUMBER() OVER (ORDER BY u.userID) + 5 AS associateID,
@@ -359,7 +357,6 @@ BEGIN
 		FROM solturaDB.sol_users u
 		WHERE u.userID > 5;
 
--- 4. Cerrar la llave simétrica
 CLOSE SYMMETRIC KEY SolturaLlaveSimetrica;
 
         
