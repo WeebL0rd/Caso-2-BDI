@@ -2,9 +2,7 @@
 
 select * from solturaDB.sol_userAssociateIdentifications;
 
-ALTER TABLE solturaDB.sol_userAssociateIdentifications
-ALTER COLUMN token VARBINARY(MAX) NOT NULL;
-
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'safePassword123';
 
 CREATE CERTIFICATE CertificadoDeCifrado
 WITH SUBJECT = 'Cifrado de Token';
