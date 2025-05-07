@@ -4901,7 +4901,7 @@ Cree una situación de deadlocks entre dos transacciones que podrían llegar a d
 
 
 Transacción A
-```
+```sql
 BEGIN TRANSACTION;
 
 -- Simular un SELECT en la primera tabla
@@ -4920,7 +4920,7 @@ COMMIT;
 ```
 
 Transacción B
-```
+```sql
 BEGIN TRANSACTION;
 
 -- Simular un SELECT en la segunda tabla
@@ -4944,7 +4944,7 @@ Determinar si es posible que suceden deadlocks en cascada, donde A bloquea B, B 
 Lo que pasa es que una de estas se sacrifica por el deadlock
 
 Transacción 1
-```
+```sql
 BEGIN TRANSACTION;
 UPDATE solturaDB.sol_users SET firstName = 'nuevoNombre' WHERE userID = 1;
 WAITFOR DELAY '00:00:03';
@@ -4957,7 +4957,7 @@ COMMIT TRANSACTION;
 
 
 Transacción 2
-```
+```sql
 BEGIN TRANSACTION;
 UPDATE solturaDB.sol_payments SET amount = amount + 200 WHERE paymentID = 2;
 WAITFOR DELAY '00:00:03';
@@ -4968,7 +4968,7 @@ COMMIT TRANSACTION;
 ```
 
 Transacción 3
-```
+```sql
 BEGIN TRANSACTION;
 UPDATE solturaDB.sol_balances SET amount = amount + 400 WHERE balanceID = 2;
 WAITFOR DELAY '00:00:03';
@@ -4986,7 +4986,7 @@ UNCOMMITTED
 
 
 1
-```
+```sql
 USE solturaDB;
 GO
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
@@ -5009,7 +5009,7 @@ COMMIT;
 
 
 2
-```
+```sql
 
 USE solturaDB;
 GO
@@ -5030,7 +5030,7 @@ COMMITED
 
 
 1
-```
+```sql
 USE solturaDB;
 GO
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -5053,7 +5053,7 @@ COMMIT;
 
 
 2
-```
+```sql
 USE solturaDB;
 GO
 
@@ -5110,7 +5110,7 @@ REPETEABLE
 
 
 1
-```
+```sql
 USE solturaDB;
 GO
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
@@ -5130,7 +5130,7 @@ COMMIT;
 ```
 
 2
-```
+```sql
 USE solturaDB;
 GO
 
@@ -5157,7 +5157,7 @@ GO
 SERIALIZABLE
 
 1
-```
+```sql
 USE solturaDB;
 GO
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
@@ -5178,7 +5178,7 @@ COMMIT;
 
 
 1
-```
+```sql
 USE solturaDB;
 GO
 
@@ -5201,7 +5201,7 @@ Los cursores sirven para ejecuciones de fila a fila no de alta concurrencia
 
 
 CURSOR
-```
+```sql
 DECLARE payment_cursor CURSOR FOR
 SELECT paymentID
 FROM solturaDB.sol_payments
@@ -5233,7 +5233,7 @@ DEALLOCATE payment_cursor;
 
 Update que provoca un bloquea
 
-```
+```sql
 USE solturaDB;
 UPDATE solturaDB.sol_payments
 SET result = 'Forzado'
@@ -5250,8 +5250,6 @@ Determine cuántas transacciones por segundo máximo es capaz de procesar su bas
 
 Determine como podría triplicar el valor averiguado anteriormente sin hacer cambios en su base de datos ni incrementar hardware ni modificando el query
 
-
-## Resultados
 # Adquisiones en Costa Rica y Migración de datos
 
 El archivo de migración es MigrationSetup.ipynb
