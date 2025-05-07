@@ -344,7 +344,7 @@ def insertarPaquetes(IdsBeneficios):
 
 
 # ─── FUNCIÓN: Insertar Reviews con Respuestas ────────────────────────────────
-def insertarReviewsConRespuestas(usuarios, paquetes):
+def insertarReviews(usuarios, paquetes):
     reviews = [
         {
             "usuarioID": usuarios[0]["_id"],
@@ -377,6 +377,90 @@ def insertarReviewsConRespuestas(usuarios, paquetes):
     db.reviews.insert_many(reviews)
     return reviews
 
+
+# ─── FUNCIÓN: Insertar anuncios web ──────────────────────────────────────────
+def insertarAnuncios():
+    anuncios = [
+        {
+            "_id": ObjectId(),
+            "nombreAnuncio": "BannerPrincipalMigracion",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 15, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 6, 30, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_del_banner_migracion.png",
+                    "texto": "¡Payment Assistant ahora es Soltura! Sigue los pasos en la guía para la fecha en que ocurrirá la migración.",
+                    "fecha": datetime(2025, 5, 15, 0, 0, 0),
+                    "link": "/guia-migracion"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "_id": ObjectId(),
+            "nombreAnuncio": "PromocionVeranoHome",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 6, 1, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 7, 31, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_promocion_verano_home.jpg",
+                    "texto": "¡Disfruta el verano con Soltura! Descubre nuestras ofertas.",
+                    "link": "/promociones/verano"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "_id": ObjectId(),
+            "nombreAnuncio": "NuevoPaqueteFamiliar",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 20, 0, 0, 0),
+            "banners": [
+                {
+                    "imagenUrl": "url_tarjeta_familiar.png",
+                    "texto": "Conoce el nuevo Paquete Familiar Plus. ¡Más beneficios para toda la familia!",
+                    "link": "/paquetes/familiar-plus"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "_id": ObjectId(),
+            "nombreAnuncio": "AnuncioAppMobile",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 10, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 5, 25, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_modal_app.png",
+                    "texto": "Descarga nuestra nueva app y gestiona todo más fácil.",
+                    "link": "/descarga-app"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "_id": ObjectId(),
+            "nombreAnuncio": "BannerDescuentoJoven",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 6, 15, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 7, 15, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_banner_joven.jpg",
+                    "texto": "¡Paquete Joven, listo para cumplir todas sus necesidades básicas!",
+                    "link": "/paquetes/joven"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        }
+    ]
+    db.anunciosWeb.insert_many(anuncios)
+    return [anuncio["_id"] for anuncio in anuncios]
+
+
 # ─── EJECUCIÓN DEL SCRIPT COMPLETO ─────────────────────────────────────────
 if __name__ == "__main__":
     usuarios = insertarUsuarios()
@@ -385,5 +469,6 @@ if __name__ == "__main__":
     insertarCasos(usuarios, agentes)
     beneficio_ids = insertarBeneficios()
     paquetes = insertarPaquetes(beneficio_ids)
-    insertarReviewsConRespuestas(usuarios, paquetes)
+    insertarReviews(usuarios, paquetes)
+    anuncios = insertarAnuncios() 
     print("Datos insertados correctamente.")
