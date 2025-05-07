@@ -1,4 +1,4 @@
--- Sesión B
+
 USE solturaDB;
 GO
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
@@ -9,6 +9,6 @@ UPDATE solturaDB.sol_exchangeCurrencies
 SET exchange_rate = 0.0020
 WHERE sourceID = 1 AND destinyID = 2;
 
-WAITFOR DELAY '00:00:10';  -- dura más que la espera de Sesión A
+WAITFOR DELAY '00:00:10';  -- dura mÃ¡s que la espera de SesiÃ³n A
 
 ROLLBACK; 
