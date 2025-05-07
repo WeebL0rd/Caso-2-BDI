@@ -25,9 +25,7 @@ GO
 
 PRINT 'Servidor vinculado.';
 
-
-
---Se crea una tabla de bitácora en esta instancia local. 
+--Se crea una tabla de bitï¿½cora en esta instancia local. 
 USE master;
 GO
 
@@ -42,10 +40,10 @@ BEGIN
         Servidor NVARCHAR(255),
         Gravedad INT NOT NULL,
         NombreAplicacion NVARCHAR(255) );
-    PRINT 'Tabla de bitácora creada.';
+    PRINT 'Tabla de bitï¿½cora creada.';
 END;
 ELSE
-    PRINT 'La tabla de bitácora ya existe.';
+    PRINT 'La tabla de bitï¿½cora ya existe.';
 GO
 
 
@@ -72,7 +70,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        -- Inserta en la tabla de bitácora del servidor en la instancia local!!!!!
+        -- Inserta en la tabla de bitï¿½cora del servidor en la instancia local!!!!!
         INSERT INTO master.dbo.RegistroBitacora (
             FechaHora,
             NombreProcedimiento,
@@ -86,12 +84,12 @@ BEGIN
 				ISNULL(@NombreAplicacion, APP_NAME()));
     END TRY
     BEGIN CATCH
-        PRINT 'Error al registrar en la bitácora: ' + ERROR_MESSAGE();
+        PRINT 'Error al registrar en la bitï¿½cora: ' + ERROR_MESSAGE();
     END CATCH
 END;
 GO
 
-PRINT 'Procedimiento almacenado genérico creado exitosamente.';
+PRINT 'Procedimiento almacenado genï¿½rico creado exitosamente.';
 
 
 
@@ -106,6 +104,6 @@ EXEC sp_RegistrarEventoBitacora
     @Gravedad = 0,
     @NombreAplicacion = 'Soltura';
 
--- Verifica el registro en la tabla de bitácora
+-- Verifica el registro en la tabla de bitï¿½cora
 SELECT * FROM master.dbo.RegistroBitacora;
 GO

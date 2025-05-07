@@ -1,3 +1,4 @@
+--12. SCHEMABINDING demostrar que efectivamente funciona en SPs, vistas, funciones.
 USE solturaDB;
 GO
 IF OBJECT_ID('vw_member_subscriptions', 'V') IS NOT NULL
@@ -27,7 +28,7 @@ PRINT 'Intentando modificar una columna referenciada...';
 GO
 BEGIN TRY
     ALTER TABLE solturaDB.sol_users ALTER COLUMN firstName NVARCHAR(100);
-    PRINT 'ERROR: SCHEMABINDING no está funcionando (se permitió la modificación)';
+    PRINT 'ERROR: SCHEMABINDING no estï¿½ funcionando (se permitiï¿½ la modificaciï¿½n)';
 END TRY
 BEGIN CATCH
     PRINT 'SCHEMABINDING funciona correctamente:';

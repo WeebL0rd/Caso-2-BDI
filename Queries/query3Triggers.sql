@@ -1,3 +1,4 @@
+-- 3. Uso de un trigger (por ejemplo, para log de inserciones en pagos).
 USE solturaDB;
 GO
 ALTER TABLE solturaDB.sol_logs
@@ -34,8 +35,8 @@ BEGIN
         ISNULL(SYSTEM_USER, 'system'),
         'PAYMENT_INSERT',
         i.paymentID,
-        'Método: ' + ISNULL((SELECT TOP 1 name FROM solturaDB.sol_availablePayMethods 
-                           WHERE available_method_id = i.availableMethodID ORDER BY available_method_id), 'DESCONOCIDO'),
+        'Mï¿½todo: ' + ISNULL((SELECT TOP 1 name FROM solturaDB.sol_availablePayMethods 
+            WHERE available_method_id = i.availableMethodID ORDER BY available_method_id), 'DESCONOCIDO'),
         HASHBYTES('SHA2_256', CAST(i.paymentID AS NVARCHAR(50)) + CAST(ISNULL(i.amount, 0) AS NVARCHAR(20))),
         ISNULL((SELECT TOP 1 logSererityID FROM solturaDB.sol_logsSererity WHERE name = 'Info' ORDER BY logSererityID), 1),
         ISNULL((SELECT TOP 1 logTypesID FROM solturaDB.sol_logTypes WHERE name = 'Payment' ORDER BY logTypesID), 1),

@@ -1,4 +1,4 @@
---Uso de MERGE para sincronizar datos de planes por ejemplo.
+--5. Uso de MERGE para sincronizar datos de planes por ejemplo.
 USE solturaDB;
 GO
 SET IDENTITY_INSERT solturaDB.sol_plans ON
@@ -10,8 +10,8 @@ USING (
 	SELECT 7, 'Plan Familiar (4 personas)', 4 UNION ALL
     SELECT 22, 'Familia de Verano (Vacacional)', 4 UNION ALL
     SELECT 23, 'Viajero Frecuente - Millas', 6 UNION ALL
-	SELECT 30,  '    Nómada Digital - Remoto Global', 15 UNION ALL
-    SELECT 24, 'Nómada Digital', 6
+	SELECT 30,  '    Nï¿½mada Digital - Remoto Global', 15 UNION ALL
+    SELECT 24, 'Nï¿½mada Digital', 6
 ) AS source
 ON target.planID = source.planID
 WHEN MATCHED AND (target.description <> source.description OR target.planTypeID <> source.planTypeID) THEN
