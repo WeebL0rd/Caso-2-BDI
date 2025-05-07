@@ -1,8 +1,8 @@
--- Sesión B corregida (inserción de pagos)
+
 USE solturaDB;
 GO
 
--- Espera 2s para que Sesión A ejecute la primera lectura
+-- Espera 2s para que SesiÃ³n A ejecute la primera lectura
 WAITFOR DELAY '00:00:02';
 
 BEGIN TRANSACTION;
