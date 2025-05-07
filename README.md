@@ -5246,9 +5246,26 @@ Defina lo que es la "transacción de volumen" de su base de datos, por ejemplo, 
 
 La transacción de volumen sería payments.
 Determine cuántas transacciones por segundo máximo es capaz de procesar su base de datos, valide el método con el profesor
-61 por segundo con 100 hilos
+61 por segundo con 100 hilos. Grupo de hilos hecho con jmeter en https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Concurrencia
 
 Determine como podría triplicar el valor averiguado anteriormente sin hacer cambios en su base de datos ni incrementar hardware ni modificando el query
+
+Se hace mediante encolamiento con dos grupos de hilo en jmeter y una creación de un payment queueu. Jmeter en https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Concurrencia
+
+
+```
+USE solturaDB;
+GO
+
+CREATE TABLE dbo.sol_payment_queue (
+  queueID      INT IDENTITY(1,1) PRIMARY KEY,
+  userID       INT             NOT NULL,
+  amount       DECIMAL(9,2)    NOT NULL,
+  payload      NVARCHAR(MAX)   NULL,
+  date_created DATETIME        NOT NULL DEFAULT SYSUTCDATETIME()
+);
+GO
+```
 
 # Adquisiones en Costa Rica y Migración de datos
 
