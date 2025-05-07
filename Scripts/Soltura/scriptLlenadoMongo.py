@@ -11,7 +11,6 @@ db = client["soltura"]
 def insertarUsuarios():
     usuarios = [
         {
-            "_id": ObjectId(),
             "nombreCompleto": "Juan Pérez",
             "nombreUsuario": "juanp",
             "email": "juan@example.com",
@@ -33,7 +32,6 @@ def insertarUsuarios():
             }
         },
         {
-            "_id": ObjectId(),
             "nombreCompleto": "Ana Rodríguez",
             "nombreUsuario": "anar",
             "email": "ana@example.com",
@@ -56,13 +54,12 @@ def insertarUsuarios():
         }
     ]
     db.usuarios.insert_many(usuarios)
-    return usuarios
+    return [usuario["nombreUsuario"] for usuario in usuarios]
 
 # ─── FUNCIÓN: Insertar departamentos ────────────────────────────────────────
 def insertarDepartamentos():
     departamentos = [
         {
-            "_id": ObjectId(),
             "nombreDepartamento": "Atención al Cliente",
             "mediosContacto": ["telefono", "email", "whatsapp"],
             "horario": {
@@ -72,7 +69,6 @@ def insertarDepartamentos():
             }
         },
         {
-            "_id": ObjectId(),
             "nombreDepartamento": "Soporte Técnico",
             "mediosContacto": ["email"],
             "horario": {
@@ -89,7 +85,6 @@ def insertarDepartamentos():
 def insertarAgentes(departamentos):
     agentes = [
         {
-            "_id": ObjectId(),
             "IDAgente": "AGT001",
             "nombre": "Carlos Ramírez",
             "email": "carlos@soltura.com",
@@ -99,12 +94,11 @@ def insertarAgentes(departamentos):
                 "sabados": "09:00-12:00",
                 "domingos": "cerrado"
             },
-            "departamento": departamentos[0]["_id"],
+            "departamento": "Atención al Cliente",
             "nivelAutoridad": "senior",
             "maxCasosSimultaneos": 5
         },
         {
-            "_id": ObjectId(),
             "IDAgente": "AGT002",
             "nombre": "Lucía Vega",
             "email": "lucia@soltura.com",
@@ -114,7 +108,7 @@ def insertarAgentes(departamentos):
                 "sabados": "cerrado",
                 "domingos": "cerrado"
             },
-            "departamento": departamentos[1]["_id"],
+            "departamento": "Soporte Técnico",
             "nivelAutoridad": "junior",
             "maxCasosSimultaneos": 3
         }
@@ -128,8 +122,8 @@ def insertarCasos(usuarios, agentes):
             "CasoID": "C-1001",
             "categoria": "consulta",
             "estado": "en espera",
-            "ClienteID": usuarios[0]["_id"],
-            "agentesAsignados": [agentes[0]["_id"]],
+            "ClienteUsername": "juanp",
+            "agentesAsignados": ["AGT001"],
             "asunto": "¿Cómo cambio mi contraseña?",
             "descripcion": "Necesito ayuda para restablecer mi clave.",
             "fechaCreacion": datetime.now(),
@@ -138,13 +132,13 @@ def insertarCasos(usuarios, agentes):
             "satisfaccionCliente": None,
             "historial": [
                 {
-                    "autor": usuarios[0]["_id"],
+                    "autor": "juanp",
                     "fecha": datetime.now(),
                     "mensaje": "Hola, necesito cambiar mi contraseña",
                     "lenguaje": "es-CR"
                 },
                 {
-                    "autor": agentes[0]["_id"],
+                    "autor": "AGT001",
                     "fecha": datetime.now(),
                     "mensaje": "Claro, puede hacerlo desde el menú de configuración.",
                     "lenguaje": "es-CR"
@@ -155,8 +149,8 @@ def insertarCasos(usuarios, agentes):
             "CasoID": "C-1002",
             "categoria": "queja",
             "estado": "en proceso",
-            "ClienteID": usuarios[1]["_id"],
-            "agentesAsignados": [agentes[1]["_id"]],
+            "ClienteUsername": "anar",
+            "agentesAsignados": ["AGT002"],
             "asunto": "Problemas con la facturación",
             "descripcion": "Me cobraron un monto incorrecto en mi factura.",
             "fechaCreacion": datetime.now(),
@@ -165,13 +159,13 @@ def insertarCasos(usuarios, agentes):
             "satisfaccionCliente": None,
             "historial": [
                 {
-                    "autor": usuarios[1]["_id"],
+                    "autor": "anar",
                     "fecha": datetime.now(),
                     "mensaje": "Mi factura tiene un cobro que no reconozco.",
                     "lenguaje": "es-CR"
                 },
                 {
-                    "autor": agentes[1]["_id"],
+                    "autor": "AGT002",
                     "fecha": datetime.now(),
                     "mensaje": "Vamos a revisar los detalles de su cuenta.",
                     "lenguaje": "es-CR"
@@ -186,6 +180,7 @@ def insertarCasos(usuarios, agentes):
 def insertarBeneficios():
     beneficios = [
         {
+            "beneficioID": "BEN01",
             "nombre": "Gimnasio SmartFit",
             "tipo": "salud",
             "descripcion": "Acceso a SmartFit en horarios regulares",
@@ -195,6 +190,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN02",
             "nombre": "Lavandería y aplanchado",
             "tipo": "hogar",
             "descripcion": "Servicio completo de lavandería y planchado",
@@ -204,6 +200,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN03",
             "nombre": "Limpieza básica de hogar",
             "tipo": "hogar",
             "descripcion": "Limpieza básica con personal capacitado",
@@ -213,6 +210,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN04",
             "nombre": "Combustible",
             "tipo": "movilidad",
             "descripcion": "Monto mensual para combustible gas o diésel",
@@ -222,6 +220,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN05",
             "nombre": "Corte de pelo (Tito Barbers)",
             "tipo": "estética",
             "descripcion": "Corte profesional en Tito Barbers",
@@ -231,6 +230,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN06",
             "nombre": "Cenas seleccionadas",
             "tipo": "alimentación",
             "descripcion": "Cenas de restaurantes aliados",
@@ -240,6 +240,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN07",
             "nombre": "Almuerzos seleccionados",
             "tipo": "alimentación",
             "descripcion": "Almuerzos de restaurantes aliados",
@@ -249,6 +250,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN08",
             "nombre": "Plan móvil (Kolbi)",
             "tipo": "tecnología",
             "descripcion": "Plan de datos y llamadas ilimitadas",
@@ -258,6 +260,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN09",
             "nombre": "Parqueo",
             "tipo": "movilidad",
             "descripcion": "Horas de parqueo en puntos seleccionados",
@@ -267,6 +270,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN10",
             "nombre": "Grooming para mascota",
             "tipo": "mascotas",
             "descripcion": "Servicio de grooming para una mascota",
@@ -276,6 +280,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN11",
             "nombre": "Revisión veterinaria",
             "tipo": "mascotas",
             "descripcion": "Consulta veterinaria básica",
@@ -285,6 +290,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN12",
             "nombre": "Clases de natación o fútbol (niños)",
             "tipo": "educación",
             "descripcion": "Clases recreativas para niños",
@@ -294,6 +300,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN13",
             "nombre": "Uber Eats",
             "tipo": "alimentación",
             "descripcion": "Pedidos con envío gratis y 20% descuento",
@@ -303,6 +310,7 @@ def insertarBeneficios():
             "activo": True
         },
         {
+            "beneficioID": "BEN14",
             "nombre": "Uber Rides",
             "tipo": "movilidad",
             "descripcion": "Saldo para viajes en Uber",
@@ -312,15 +320,18 @@ def insertarBeneficios():
             "activo": True
         }
     ]
-    return db.beneficios.insert_many(beneficios).inserted_ids
+    db.beneficios.insert_many(beneficios)
+    return [b["beneficioID"] for b in beneficios]
+
 
 # ─── FUNCIÓN: Insertar paquetes ────────────────────────────────────────────
-def insertarPaquetes(IdsBeneficios):
+def insertarPaquetes(beneficioIDs):
     paquetes = [
         {
+            "paqueteID": "PAX1",
             "titulo": "Paquete Profesional Joven",
             "descripcion": "Ideal para profesionales activos que buscan conveniencia",
-            "beneficios": IdsBeneficios[0:9],
+            "beneficios": beneficioIDs[0:9],
             "precioMensual": 25000,
             "moneda": "CRC",
             "maxPersonas": 1,
@@ -329,9 +340,10 @@ def insertarPaquetes(IdsBeneficios):
             "fechaUltimaActualizacion": datetime.utcnow()
         },
         {
+            "paqueteID": "PAX2",
             "titulo": "Paquete Full Modern Family",
             "descripcion": "Pensado para familias modernas que buscan bienestar integral",
-            "beneficios": IdsBeneficios[8:] + IdsBeneficios[9:],
+            "beneficios": beneficioIDs[8:] + beneficioIDs[9:],
             "precioMensual": 45000,
             "moneda": "CRC",
             "maxPersonas": 4,
@@ -340,34 +352,35 @@ def insertarPaquetes(IdsBeneficios):
             "fechaUltimaActualizacion": datetime.utcnow()
         }
     ]
-    return db.paquetesInformativos.insert_many(paquetes).inserted_ids
+    db.paquetesInformativos.insert_many(paquetes)
+    return [paquete["paqueteID"] for paquete in paquetes]
 
 
 # ─── FUNCIÓN: Insertar Reviews con Respuestas ────────────────────────────────
 def insertarReviews(usuarios, paquetes):
     reviews = [
         {
-            "usuarioID": usuarios[0]["_id"],
-            "paqueteID": paquetes[0]["_id"],
+            "ClienteUsername": usuarios[0],
+            "paqueteID": paquetes[0],
             "calificacion": 4,
             "comentario": "Buen paquete, pero me gustaría más soporte técnico.",
             "fecha": datetime.now(),
             "respuestas": [
                 {
-                    "usuarioID": usuarios[1]["_id"],
+                    "ClienteUsername": usuarios[1],
                     "comentario": "Entiendo lo que dices, el soporte técnico podría mejorar.",
                     "fecha": datetime.now()
                 },
                 {
-                    "usuarioID": usuarios[2]["_id"],
+                    "ClienteUsername": usuarios[0],
                     "comentario": "¿Qué tipo de soporte crees que falta? Podría ayudar.",
                     "fecha": datetime.now()
                 }
             ]
         },
         {
-            "usuarioID": usuarios[1]["_id"],
-            "paqueteID": paquetes[1]["_id"],
+            "ClienteUsername": usuarios[1],
+            "paqueteID": paquetes[1],
             "calificacion": 5,
             "comentario": "Excelente servicio, totalmente recomendado.",
             "fecha": datetime.now(),
@@ -382,7 +395,6 @@ def insertarReviews(usuarios, paquetes):
 def insertarAnuncios():
     anuncios = [
         {
-            "_id": ObjectId(),
             "nombreAnuncio": "BannerPrincipalMigracion",
             "activo": True,
             "fechaInicioPublicacion": datetime(2025, 5, 15, 0, 0, 0),
@@ -398,7 +410,6 @@ def insertarAnuncios():
             "fechaCreacion": datetime.now()
         },
         {
-            "_id": ObjectId(),
             "nombreAnuncio": "PromocionVeranoHome",
             "activo": True,
             "fechaInicioPublicacion": datetime(2025, 6, 1, 0, 0, 0),
@@ -413,7 +424,6 @@ def insertarAnuncios():
             "fechaCreacion": datetime.now()
         },
         {
-            "_id": ObjectId(),
             "nombreAnuncio": "NuevoPaqueteFamiliar",
             "activo": True,
             "fechaInicioPublicacion": datetime(2025, 5, 20, 0, 0, 0),
@@ -427,7 +437,6 @@ def insertarAnuncios():
             "fechaCreacion": datetime.now()
         },
         {
-            "_id": ObjectId(),
             "nombreAnuncio": "AnuncioAppMobile",
             "activo": True,
             "fechaInicioPublicacion": datetime(2025, 5, 10, 0, 0, 0),
@@ -442,7 +451,6 @@ def insertarAnuncios():
             "fechaCreacion": datetime.now()
         },
         {
-            "_id": ObjectId(),
             "nombreAnuncio": "BannerDescuentoJoven",
             "activo": True,
             "fechaInicioPublicacion": datetime(2025, 6, 15, 0, 0, 0),
@@ -458,7 +466,7 @@ def insertarAnuncios():
         }
     ]
     db.anunciosWeb.insert_many(anuncios)
-    return [anuncio["_id"] for anuncio in anuncios]
+    return anuncios
 
 
 # ─── EJECUCIÓN DEL SCRIPT COMPLETO ─────────────────────────────────────────
