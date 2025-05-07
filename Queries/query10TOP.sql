@@ -1,4 +1,4 @@
---10. TOP para mostrar top 5 planes más populares.
+--10. TOP para mostrar top 5 planes mï¿½s populares.
 USE solturaDB;
 GO
 SELECT TOP 5

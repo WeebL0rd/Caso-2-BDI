@@ -19,7 +19,7 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM solturaDB.sol_availablePayMethods WHERE available_method_id = @AvailableMethodID AND userID = @UserID)
         BEGIN
             SET @Exito = 0;
-            SET @Mensaje = 'Método de pago no disponible para el usuario';
+            SET @Mensaje = 'Mï¿½todo de pago no disponible para el usuario';
             ROLLBACK;
             RETURN;
         END
@@ -29,7 +29,7 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM solturaDB.sol_payMethod WHERE payMethodID = @MethodID AND enabled = 1)
         BEGIN
             SET @Exito = 0;
-            SET @Mensaje = 'Método de pago no habilitado';
+            SET @Mensaje = 'Mï¿½todo de pago no habilitado';
             ROLLBACK;
             RETURN;
         END
@@ -117,7 +117,7 @@ BEGIN
             @UserID, CAST('checksum_txn_' + CAST(NEWID() AS NVARCHAR(50)) AS VARBINARY(250)),
             1.0, @Amount, 1,
             CASE
-                WHEN @AvailableMethodID IN (1,4,7,13) THEN 1 -- Tarjeta de crédito
+                WHEN @AvailableMethodID IN (1,4,7,13) THEN 1 -- Tarjeta de crï¿½dito
                 WHEN @AvailableMethodID IN (2,10,16) THEN 2 -- Transferencia bancaria
                 WHEN @AvailableMethodID IN (5,6,12) THEN 3 -- Efectivo
                 ELSE 4 
@@ -249,7 +249,7 @@ GO
 
 
 
---Probar los procedures -> Esta ejecución fallará, puesto que un usuario con un plan no premiun, intenta acceder a un plan premiun
+--Probar los procedures -> Esta ejecuciï¿½n fallarï¿½, puesto que un usuario con un plan no premiun, intenta acceder a un plan premiun
 DECLARE @TransactionID INT, @Exito BIT, @Mensaje NVARCHAR(500);
 EXEC sp_ComprarDealPremium 
     @DealID = 1, 

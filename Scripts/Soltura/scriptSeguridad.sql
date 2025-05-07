@@ -1,5 +1,5 @@
 
--- 1. CREACIÓN DE USUARIOS Y CONTROL DE ACCESO
+-- 1. CREACIï¿½N DE USUARIOS Y CONTROL DE ACCESO
 
 -- Crear login y usuarios de prueba
 CREATE LOGIN usuario WITH PASSWORD = '654321';
@@ -12,17 +12,17 @@ CREATE USER usuario FOR LOGIN usuario;
 CREATE USER empleado FOR LOGIN empleado;
 CREATE USER manager FOR LOGIN manager;
 
--- Denegar acceso completo a la base de datos (revocar permisos de conexión)
+-- Denegar acceso completo a la base de datos (revocar permisos de conexiï¿½n)
 DENY CONNECT TO usuario;
 
 
--- PRUEBA DE CONEXIÓN RESTRINGIDA
+-- PRUEBA DE CONEXIï¿½N RESTRINGIDA
 USE solturaDB;
 EXECUTE AS USER = 'usuario';
 
 SELECT firstName FROM solturaDB.sol_users; -- Cualquier consulta simple
 
--- Esto también verifica si el usuario puede conectarse a la DB
+-- Esto tambiï¿½n verifica si el usuario puede conectarse a la DB
 SELECT HAS_DBACCESS('usuario') AS TieneAcceso;
 
 
@@ -48,19 +48,19 @@ REVOKE SELECT ON solturaDB.sol_payments TO PUBLIC;
 GRANT SELECT ON solturaDB.sol_payments TO manager;
 
 
--- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECÍFICO
--- Ejemplo con la tabla de pagos, que contiene la información de los pagos realizados
--- usuario no podrá acceder
+-- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECï¿½FICO
+-- Ejemplo con la tabla de pagos, que contiene la informaciï¿½n de los pagos realizados
+-- usuario no podrï¿½ acceder
 EXECUTE AS USER = 'usuario';
 SELECT * FROM solturaDB.sol_payments; -- Error
 REVERT;
 
--- empleado no podrá acceder
+-- empleado no podrï¿½ acceder
 EXECUTE AS USER = 'empleado';
 SELECT * FROM solturaDB.sol_payments; -- Error
 REVERT;
 
--- manager sí podrá
+-- manager sï¿½ podrï¿½
 EXECUTE AS USER = 'manager';
 SELECT * FROM solturaDB.sol_payments; -- OK
 REVERT;
@@ -82,14 +82,14 @@ DENY SELECT ON solturaDB.sol_payments TO AccesoRestringido;
 GRANT SELECT ON solturaDB.sol_payments TO SoloLectura;
 
 
--- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECÍFICO
+-- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECï¿½FICO
 
 -- usuario en rol AccesoRestringido
 EXECUTE AS USER = 'usuario';
 SELECT * FROM solturaDB.sol_payments; -- Denegado
 REVERT;
 
--- empleado en rol SoloLectura (antes tenía restringido el acceso a la tabla, pero ahora accede por el rol)
+-- empleado en rol SoloLectura (antes tenï¿½a restringido el acceso a la tabla, pero ahora accede por el rol)
 EXECUTE AS USER = 'empleado';
 SELECT * FROM solturaDB.sol_payments; -- OK
 REVERT;
@@ -122,16 +122,16 @@ BEGIN
 	INNER JOIN sol_partners p ON d.partnerId = p.partnerId 
 END;
 
--- PRUEBAS DE EJECUCIÓN
+-- PRUEBAS DE EJECUCIï¿½N
 
--- el usuario no puede utilizar el SP si no se le da permiso explícitamete
+-- el usuario no puede utilizar el SP si no se le da permiso explï¿½citamete
 -- Actuar como el usuario sin permiso
 EXECUTE AS USER = 'usuario';
 
 -- Probar acceso directo a las tablas (esperado: error)
 SELECT * FROM solturaDB.sol_deals;       
 SELECT * FROM solturaDB.sol_partners;   
--- Probar ejecución del SP 
+-- Probar ejecuciï¿½n del SP 
 EXEC solturaDB.SP_verDealsdePartners;        -- Error: no tiene permiso
 
 REVERT;

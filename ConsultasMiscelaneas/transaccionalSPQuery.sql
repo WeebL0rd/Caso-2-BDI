@@ -1,4 +1,4 @@
---Crear un procedimiento almacenado transaccional que realice una operación del sistema, relacionado a subscripciones, pagos, servicios, transacciones o planes, y que dicha operación requiera insertar y/o actualizar al menos 3 tablas.
+--Crear un procedimiento almacenado transaccional que realice una operaciï¿½n del sistema, relacionado a subscripciones, pagos, servicios, transacciones o planes, y que dicha operaciï¿½n requiera insertar y/o actualizar al menos 3 tablas.
 USE solturaDB;
 GO
 IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'sp_RenovarSuscripcionAutomatica')
@@ -25,14 +25,14 @@ BEGIN
     DECLARE @refNumber VARCHAR(50) = 'REN-' + CONVERT(VARCHAR(20), GETDATE(), 112) + '-' + RIGHT('00000' + CAST(ABS(CHECKSUM(NEWID())) % 100000 AS VARCHAR(5)), 5);
     DECLARE @authCode VARCHAR(60) = 'AUTH-' + CONVERT(VARCHAR(20), GETDATE(), 112) + '-' + RIGHT('00000' + CAST(ABS(CHECKSUM(NEWID())) % 100000 AS VARCHAR(5)), 5);
     DECLARE @randomSubtype INT = CAST(ABS(CHECKSUM(NEWID())) % 5 + 1 AS INT);
-	DECLARE @defaultScheduleID INT = (SELECT TOP 1 scheduleID FROM solturaDB.sol_schedules WHERE name = 'Renovación Automática');
+	DECLARE @defaultScheduleID INT = (SELECT TOP 1 scheduleID FROM solturaDB.sol_schedules WHERE name = 'Renovaciï¿½n Automï¿½tica');
         IF @defaultScheduleID IS NULL
     BEGIN
         INSERT INTO solturaDB.sol_schedules (
             name, repit, repetitions, recurrencyType, endDate, startDate
         )
         VALUES (
-            'Renovación Automática', 0, 0, 0, DATEADD(YEAR, 10, GETDATE()), GETDATE()
+            'Renovaciï¿½n Automï¿½tica', 0, 0, 0, DATEADD(YEAR, 10, GETDATE()), GETDATE()
         );
         SET @defaultScheduleID = SCOPE_IDENTITY();
     END
@@ -44,7 +44,7 @@ BEGIN
         IF @monto IS NULL
         BEGIN
             SET @resultado = 0;
-            SET @mensaje = 'El plan especificado no existe o no está activo';
+            SET @mensaje = 'El plan especificado no existe o no estï¿½ activo';
             ROLLBACK;
             RETURN;
         END
@@ -55,8 +55,8 @@ BEGIN
         )
         VALUES (
             @paymentMethodID, @currencyID, @monto, GETDATE(),
-            1, 'Renovación automática', @authCode, @refNumber,
-            @token, 'Renovación automática', '', @checksum, @paymentMethodID
+            1, 'Renovaciï¿½n automï¿½tica', @authCode, @refNumber,
+            @token, 'Renovaciï¿½n automï¿½tica', '', @checksum, @paymentMethodID
         );
         SET @paymentID = SCOPE_IDENTITY();
         SELECT @userPlanID = userPlanID 
@@ -108,26 +108,26 @@ BEGIN
             checksum, logSeverityID, logTypesID, logSourcesID
         )
         VALUES (
-            'Renovación automática', GETDATE(), HOST_NAME(), SYSTEM_USER,
+            'Renovaciï¿½n automï¿½tica', GETDATE(), HOST_NAME(), SYSTEM_USER,
             '', @userID, @transactionID, CAST(@monto AS VARCHAR(50)),
             @checksum, 1, 3, 1
         );
         COMMIT TRANSACTION;
         SET @resultado = 1;
-        SET @mensaje = 'Renovación exitosa. Nuevo saldo: ' + ISNULL(CAST(@nuevoSaldo AS VARCHAR(20)), '0.00');
+        SET @mensaje = 'Renovaciï¿½n exitosa. Nuevo saldo: ' + ISNULL(CAST(@nuevoSaldo AS VARCHAR(20)), '0.00');
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
         SET @resultado = 0;
-        SET @mensaje = 'Error al renovar suscripción: ' + ERROR_MESSAGE();
+        SET @mensaje = 'Error al renovar suscripciï¿½n: ' + ERROR_MESSAGE();
         INSERT INTO solturaDB.sol_logs (
             description, postTime, computer, username,
             trace, referenceId1, value1, value2,
             checksum, logSeverityID, logTypesID, logSourcesID
         )
         VALUES (
-            'Error en renovación automática', GETDATE(), HOST_NAME(), SYSTEM_USER,
+            'Error en renovaciï¿½n automï¿½tica', GETDATE(), HOST_NAME(), SYSTEM_USER,
             '', @userID, ERROR_MESSAGE(), ERROR_PROCEDURE(),
             @checksum, 3, 3, 1
         );
@@ -152,7 +152,7 @@ EXEC dbo.sp_RenovarSuscripcionAutomatica
     @mensaje = @mensaje OUTPUT;
 -- resultados
 SELECT 
-    'Resultado' = CASE WHEN @resultado = 1 THEN 'Éxito' ELSE 'Fallo' END,
+    'Resultado' = CASE WHEN @resultado = 1 THEN 'ï¿½xito' ELSE 'Fallo' END,
     'Mensaje' = @mensaje,
     'Detalles' = 'PagoID: ' + ISNULL((SELECT TOP 1 CAST(paymentID AS VARCHAR) FROM solturaDB.sol_payments ORDER BY paymentID DESC), 'N/A') +
                 ', TransID: ' + ISNULL((SELECT TOP 1 CAST(transactionsID AS VARCHAR) FROM solturaDB.sol_transactions ORDER BY transactionsID DESC), 'N/A') +
@@ -160,14 +160,14 @@ SELECT
 
 -- detalles de las tablas afectadas
 SELECT TOP 1 
-    'Último Pago' = 'ID: ' + CAST(paymentID AS VARCHAR) + 
+    'ï¿½ltimo Pago' = 'ID: ' + CAST(paymentID AS VARCHAR) + 
                    ', Monto: ' + CAST(amount AS VARCHAR) + 
-                   ', Método: ' + CAST(methodID AS VARCHAR) + 
+                   ', Mï¿½todo: ' + CAST(methodID AS VARCHAR) + 
                    ', Fecha: ' + CONVERT(VARCHAR, date_pay, 120)
 FROM solturaDB.sol_payments 
 ORDER BY paymentID DESC;
 SELECT TOP 1 
-    'Última Transacción' = 'ID: ' + CAST(t.transactionsID AS VARCHAR) + 
+    'ï¿½ltima Transacciï¿½n' = 'ID: ' + CAST(t.transactionsID AS VARCHAR) + 
                          ', Monto: ' + CAST(t.amount AS VARCHAR) + 
                          ', Tipo: ' + ISNULL(tt.name, 'N/A') + 
                          ', Fecha: ' + CONVERT(VARCHAR, t.date, 120)

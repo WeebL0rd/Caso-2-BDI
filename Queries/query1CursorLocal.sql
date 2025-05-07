@@ -1,4 +1,4 @@
--- 1. Cursor local, mostrando que no es visible fuera de la sesión de la base de datos
+-- 1. Cursor local, mostrando que no es visible fuera de la sesiï¿½n de la base de datos
 USE solturaDB;
 GO
 DECLARE @userID INT, @userName NVARCHAR(100);
@@ -16,25 +16,25 @@ BEGIN
     PRINT '  Usuario ' + CAST(@userID AS VARCHAR) + ': ' + @userName;
     FETCH NEXT FROM user_cursor_local INTO @userID, @userName;
 END
--- Verificación en la misma sesión
-PRINT 'Cursor local dejado abierto para demostración';
+-- Verificaciï¿½n en la misma sesiï¿½n
+PRINT 'Cursor local dejado abierto para demostraciï¿½n';
 IF CURSOR_STATUS('local','user_cursor_local') = 1
-    PRINT '  (Verificación: Cursor visible en esta sesión)';
+    PRINT '  (Verificaciï¿½n: Cursor visible en esta sesiï¿½n)';
 ELSE
-    PRINT '  (Error: Cursor no visible en su propia sesión)';
--- No cerramos el cursor para la demostración
+    PRINT '  (Error: Cursor no visible en su propia sesiï¿½n)';
+-- No cerramos el cursor para la demostraciï¿½n
 GO
--- intento de acceder al cursor de otra sesión
-PRINT 'Intento de acceder al cursor desde otra sesión';
+-- intento de acceder al cursor de otra sesiï¿½n
+PRINT 'Intento de acceder al cursor desde otra sesiï¿½n';
 BEGIN TRY
     DECLARE @testID INT, @testName NVARCHAR(100);
     FETCH NEXT FROM user_cursor_local INTO @testID, @testName;
-    PRINT 'ERROR: El cursor es visible en otra sesión';
+    PRINT 'ERROR: El cursor es visible en otra sesiï¿½n';
 END TRY
 BEGIN CATCH
-    PRINT 'Demostración exitosa:';
+    PRINT 'Demostraciï¿½n exitosa:';
     PRINT '  Error: ' + ERROR_MESSAGE();
-    PRINT '  Esto prueba que el cursor LOCAL no es visible fuera de su sesión original';
+    PRINT '  Esto prueba que el cursor LOCAL no es visible fuera de su sesiï¿½n original';
 END CATCH;
 GO
 BEGIN TRY             --aqui si cerramos el cursor

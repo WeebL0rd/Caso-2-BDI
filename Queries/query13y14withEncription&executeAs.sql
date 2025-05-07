@@ -1,5 +1,5 @@
 -- 13. WITH ENCRYPTION demostrar que es posible encriptar un SP y que no lo violenten.    
--- 14. EXECUTE AS para ejecutar SP con impersonificación, es posible? qué significa eso
+-- 14. EXECUTE AS para ejecutar SP con impersonificaciï¿½n, es posible? quï¿½ significa eso
 --muchos comentarios por que me costo entenderlo hasta a mi :(
 USE solturaDB;
 GO
@@ -14,14 +14,14 @@ GO
 INSERT INTO sol_payments (confirmed)
 VALUES (0), (1), (0), (1), (0);
 GO
---  Crea usuario (para impersonificación)
+--  Crea usuario (para impersonificaciï¿½n)
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'app_executor')
     CREATE USER app_executor WITHOUT LOGIN;
 GO
 -- Otorgar permisos limitados a la tabla creada
 GRANT SELECT ON dbo.sol_payments TO app_executor;
 GO
--- procedimiento con encriptación y impersonificación
+-- procedimiento con encriptaciï¿½n y impersonificaciï¿½n
 IF OBJECT_ID('sp_demo_secure', 'P') IS NOT NULL DROP PROCEDURE sp_demo_secure;
 GO
 CREATE PROCEDURE sp_demo_secure
@@ -34,7 +34,7 @@ BEGIN
     PRINT 'Pagos pendientes: ' + CAST(@pendientes AS VARCHAR);
 END;
 GO
-PRINT ' Confirmar que el código está encriptado (debe dar null en la tabla de results )';
+PRINT ' Confirmar que el cï¿½digo estï¿½ encriptado (debe dar null en la tabla de results )';
 SELECT 
     OBJECT_NAME(object_id) AS Procedimiento,
     definition AS CodigoFuente
@@ -42,9 +42,9 @@ FROM sys.sql_modules
 WHERE object_id = OBJECT_ID('sp_demo_secure');
 GO
 PRINT ''
-PRINT ' Ejecutar procedimiento ( como app_executor con impersonificación , funciona) ';
+PRINT ' Ejecutar procedimiento ( como app_executor con impersonificaciï¿½n , funciona) ';
 EXEC sp_demo_secure;
-PRINT 'es posible, EXECUTE AS ejecuta un procedimiento almacenado con los permisos de otro usuario diferente al que lo está llamando, es decir, a traves de la impersonificación puede ejecutar procedimientos, triggers y funciones.'
+PRINT 'es posible, EXECUTE AS ejecuta un procedimiento almacenado con los permisos de otro usuario diferente al que lo estï¿½ llamando, es decir, a traves de la impersonificaciï¿½n puede ejecutar procedimientos, triggers y funciones.'
 Print ''
 GO
 -- Crea otro usuario para prueba de acceso denegado

@@ -1,5 +1,5 @@
---Escribir un SELECT que use CASE para crear una columna calculada que agrupe dinámicamente datos (por ejemplo, agrupar cantidades de usuarios por plan en rangos de monto, no use este ejemplo).USE solturaDB;
--- Clasificación de usuarios por antigüedad (usando datos reales de las tablas)
+--Escribir un SELECT que use CASE para crear una columna calculada que agrupe dinï¿½micamente datos (por ejemplo, agrupar cantidades de usuarios por plan en rangos de monto, no use este ejemplo).USE solturaDB;
+-- Clasificaciï¿½n de usuarios por antigï¿½edad (usando datos reales de las tablas)
 SELECT 
     u.userID,
     u.firstName + ' ' + u.lastName AS fullName,
@@ -9,8 +9,8 @@ SELECT
     CASE 
         WHEN DATEDIFF(MONTH, up.adquisition, GETDATE()) < 6 THEN 'Nuevo (0-6 meses)'
         WHEN DATEDIFF(MONTH, up.adquisition, GETDATE()) BETWEEN 6 AND 12 THEN 'Intermedio (6-12 meses)'
-        WHEN DATEDIFF(MONTH, up.adquisition, GETDATE()) BETWEEN 13 AND 24 THEN 'Avanzado (1-2 años)'
-        ELSE 'Experto (+2 años)'
+        WHEN DATEDIFF(MONTH, up.adquisition, GETDATE()) BETWEEN 13 AND 24 THEN 'Avanzado (1-2 aï¿½os)'
+        ELSE 'Experto (+2 aï¿½os)'
     END AS segmentoAntiguedad
 FROM solturaDB.sol_users u
 JOIN solturaDB.sol_userPlans up ON u.userID = up.userID

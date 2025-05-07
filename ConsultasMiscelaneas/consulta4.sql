@@ -10,7 +10,7 @@ WITH UsersWithPlans AS (
     WHERE up.enabled = 1
 ),
 
--- Usuarios con pagos válidos 
+-- Usuarios con pagos vï¿½lidos 
 UsersWithPayments AS (
     SELECT DISTINCT t.user_id
     FROM SolturaDB.sol_transactions t
@@ -18,8 +18,8 @@ UsersWithPayments AS (
     WHERE p.confirmed = 1
 )
 
--- Usuarios que tienen plan Y han hecho pagos válidos
-SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan y pago válido' AS estado
+-- Usuarios que tienen plan Y han hecho pagos vï¿½lidos
+SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan y pago vï¿½lido' AS estado
 FROM SolturaDB.sol_users u
 WHERE u.userID IN (
     SELECT userID FROM UsersWithPlans
@@ -29,8 +29,8 @@ WHERE u.userID IN (
 
 UNION ALL
 
---Usuarios que tienen plan PERO NO han hecho pagos válidos
-SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan sin pago válido' AS estado
+--Usuarios que tienen plan PERO NO han hecho pagos vï¿½lidos
+SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan sin pago vï¿½lido' AS estado
 FROM SolturaDB.sol_users u
 WHERE u.userID IN (
     SELECT userID FROM UsersWithPlans

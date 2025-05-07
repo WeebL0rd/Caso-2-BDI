@@ -36,28 +36,28 @@ WITH (STATE = ON);
 -- Usuario sin session_context: no puede ver nada
 EXECUTE AS USER = 'usuario';
 EXEC sp_set_session_context @key = N'user_id', @value = NULL;
-SELECT * FROM solturaDB.sol_availablePayMethods;  -- No mostrará resultados
+SELECT * FROM solturaDB.sol_availablePayMethods;  -- No mostrarï¿½ resultados
 REVERT;
 
 
 -- Usuario con session_context: solo puede ver sus filas
 EXECUTE AS USER = 'usuario';
-EXEC sp_set_session_context @key = N'user_id', @value = 5;  -- Asignamos un user_id específico
-SELECT * FROM solturaDB.sol_availablePayMethods;  -- Solo verá las filas con user_id = 5
+EXEC sp_set_session_context @key = N'user_id', @value = 5;  -- Asignamos un user_id especï¿½fico
+SELECT * FROM solturaDB.sol_availablePayMethods;  -- Solo verï¿½ las filas con user_id = 5
 REVERT;
 
 
 -- Usuario admin: debe ver todas las filas
 EXECUTE AS USER = 'admin';
 EXEC sp_set_session_context @key = N'user_id', @value = NULL;
-SELECT * FROM solturaDB.sol_availablePayMethods;  -- Verá todas las filas
+SELECT * FROM solturaDB.sol_availablePayMethods;  -- Verï¿½ todas las filas
 REVERT;
 
 
----- Eliminar la política de RLS
+---- Eliminar la polï¿½tica de RLS
 --DROP SECURITY POLICY solturaDB.securityPolicyAvailablePayMethods;
 
----- Eliminar la función RLS
+---- Eliminar la funciï¿½n RLS
 --DROP FUNCTION solturaDB.fn_filtrarPorUsuario;
 
 

@@ -1,4 +1,4 @@
---Crear una vista indexada con al menos 4 tablas (ej. usuarios, suscripciones, pagos, servicios). La vista debe ser dinámica, no una vista materializada con datos estáticos. Demuestre que si es dinámica.
+--Crear una vista indexada con al menos 4 tablas (ej. usuarios, suscripciones, pagos, servicios). La vista debe ser dinï¿½mica, no una vista materializada con datos estï¿½ticos. Demuestre que si es dinï¿½mica.
 USE solturaDB;
 GO
 -- crea la vista con SCHEMABINDING
@@ -27,7 +27,7 @@ JOIN solturaDB.sol_plans p ON pp.planID = p.planID
 JOIN solturaDB.sol_planTypes pt ON p.planTypeID = pt.planTypeID
 WHERE up.enabled = 1 AND pp.[current] = 1;
 GO
-CREATE UNIQUE CLUSTERED INDEX IX_vw_user_subscription_details       --aqui la indexación
+CREATE UNIQUE CLUSTERED INDEX IX_vw_user_subscription_details       --aqui la indexaciï¿½n
 ON dbo.vw_user_subscription_details (userID, planID);
 GO
 IF OBJECT_ID('dbo.vw_user_subscription_aggregates', 'V') IS NOT NULL
@@ -60,7 +60,7 @@ WHERE planPriceID IN (SELECT planPriceID FROM solturaDB.sol_userPlans WHERE user
 SELECT TOP 1 firstName, lastName, planName, monthlyPrice 
 FROM dbo.vw_user_subscription_details 
 WHERE userID = 1;
-ROLLBACK TRANSACTION; -- Revertir cambios de demostración
+ROLLBACK TRANSACTION; -- Revertir cambios de demostraciï¿½n
 -- Consultas de ejemplo usando la vista indexada
 SELECT 
     planType,

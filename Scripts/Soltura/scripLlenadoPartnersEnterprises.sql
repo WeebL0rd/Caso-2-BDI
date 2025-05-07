@@ -2,12 +2,12 @@ USE solturaDB
 GO
 INSERT INTO solturaDB.sol_partners_identifications_types(name) 
 VALUES 
-('Jurídico'),
-('Cédula'),
+('Jurï¿½dico'),
+('Cï¿½dula'),
 ('Gobierno')
 INSERT INTO solturaDB.sol_enterprise_size (size) 
 VALUES 
-('Pequeña'),
+('Pequeï¿½a'),
 ('Mediana'),
 ('Grande')
 SET IDENTITY_INSERT solturaDB.sol_partners ON;
@@ -18,7 +18,7 @@ VALUES
 (3, 'SuperAhorro Limitado', GETDATE(), 1, 1, 2, '3-103-123456'),
 (4, 'MegaTienda Cuponera', GETDATE(), 1, 1, 3, '3-104-789123'),
 (5, 'Parqueo Seguro VIP', GETDATE(), 1, 1, 2, '3-105-456123'),
-(6, 'Cinépolis', GETDATE(), 1, 1, 3, '3-106-321654'),
+(6, 'Cinï¿½polis', GETDATE(), 1, 1, 3, '3-106-321654'),
 (7, 'McDonalds', GETDATE(), 1, 1, 2, '3-107-098324');
 SET IDENTITY_INSERT solturaDB.sol_partners OFF;
 INSERT INTO solturaDB.sol_partner_addresses (partnerId, addressid)

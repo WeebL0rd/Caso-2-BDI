@@ -1,7 +1,7 @@
 USE solturaDB;
 GO
 
--- Definición del Table-Valued Parameter (TVP) para las condiciones del contrato
+-- Definiciï¿½n del Table-Valued Parameter (TVP) para las condiciones del contrato
 IF NOT EXISTS (SELECT 1 FROM sys.types WHERE name = 'ContractConditionsType')
 BEGIN
   CREATE TYPE dbo.ContractConditionsType AS TABLE

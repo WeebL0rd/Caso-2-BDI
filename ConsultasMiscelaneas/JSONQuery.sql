@@ -29,7 +29,7 @@ SELECT
     WHERE fpp.planID = (SELECT TOP 1 up.planPriceID FROM solturaDB.sol_userPlans up 
 						WHERE up.userID = @UserID AND up.enabled = 1 ORDER BY up.adquisition DESC)
     FOR JSON PATH) AS features,
-    (SELECT TOP 5 -- Obtener los 5 pagos más recientes
+    (SELECT TOP 5 -- Obtener los 5 pagos mï¿½s recientes
         pay.paymentID,
         pay.date_pay,
         pay.amount,
@@ -48,4 +48,4 @@ GO
 
 
 
---Esta consulta puede ser requerida en alguna pantalla cuando algún usuario quiera ver información sobre su supscripción actual
+--Esta consulta puede ser requerida en alguna pantalla cuando algï¿½n usuario quiera ver informaciï¿½n sobre su supscripciï¿½n actual

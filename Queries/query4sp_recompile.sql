@@ -1,4 +1,4 @@
--- 4. Uso de sp_recompile, cómo podría estar recompilando todos los SP existentes cada cierto tiempo?
+-- 4. Uso de sp_recompile, cï¿½mo podrï¿½a estar recompilando todos los SP existentes cada cierto tiempo?
 USE solturaDB;
 GO
 DECLARE @sql NVARCHAR(MAX) = '';

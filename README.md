@@ -1,27 +1,20 @@
 # Documentación del Caso #2
+Profesor Rodrigo Núñez Núñez
+
+Curso: Bases de Datos I
 
 ## Integrantes
-
 Efraim Cuevas Aguilar
 Carné: 2024109746
 Github user: weebL0rd
 
-
-
-
 Carlos Andrés García Molina
 Carné: 2024181023
-Github user: CGarcía1411
-
-
-
+Github user: CGarcia1411
 
 Beatriz Rebeca Díaz Gómez
 Carné: 2024090972
 Github user: pinkcrate
-
-
-
 
 Rachel Leiva Abarca
 Carné: 2024220640
@@ -29,7 +22,2093 @@ Github user:RachellLeiva
 
 ---
 # Diseño de la base de datos
+## Script de Creación
 
+## Mongo
+```python
+# ─── IMPORTS ───────────────────────────────────────────────────────────────
+from pymongo import MongoClient
+from datetime import datetime
+from bson import ObjectId
+
+# ─── CONEXIÓN A MONGO ──────────────────────────────────────────────────────
+client = MongoClient("mongodb://localhost:27017/")
+db = client["soltura"]
+
+# ─── FUNCIÓN: Insertar usuarios ─────────────────────────────────────────────
+def insertarUsuarios():
+    usuarios = [
+        {
+            "nombreCompleto": "Juan Pérez",
+            "nombreUsuario": "juanp",
+            "email": "juan@example.com",
+            "telefono": "+50688888888",
+            "lenguaje": "es-CR",
+            "fechaRegistro": datetime.now(),
+            "activo": True,
+            "metodoRegistro": "Email",
+            "foto": "https://ejemplo.com/fotos/juan.jpg",
+            "direccion": {
+                "provincia": "San José",
+                "canton": "Central",
+                "distrito": "Carmen",
+                "direccionExacta": "Av. 10, Calle 3",
+                "coordenadas": {
+                    "lat": 9.933,
+                    "lng": -84.08
+                }
+            }
+        },
+        {
+            "nombreCompleto": "Ana Rodríguez",
+            "nombreUsuario": "anar",
+            "email": "ana@example.com",
+            "telefono": "+50687777777",
+            "lenguaje": "es-CR",
+            "fechaRegistro": datetime.now(),
+            "activo": False,
+            "metodoRegistro": "Google",
+            "foto": "https://ejemplo.com/fotos/ana.jpg",
+            "direccion": {
+                "provincia": "Alajuela",
+                "canton": "Alajuela",
+                "distrito": "San José",
+                "direccionExacta": "Calle 5",
+                "coordenadas": {
+                    "lat": 10.02,
+                    "lng": -84.21
+                }
+            }
+        }
+    ]
+    db.usuarios.insert_many(usuarios)
+    return [usuario["nombreUsuario"] for usuario in usuarios]
+
+# ─── FUNCIÓN: Insertar departamentos ────────────────────────────────────────
+def insertarDepartamentos():
+    departamentos = [
+        {
+            "nombreDepartamento": "Atención al Cliente",
+            "mediosContacto": ["telefono", "email", "whatsapp"],
+            "horario": {
+                "lunesAViernes": "08:00-17:00",
+                "sabados": "09:00-13:00",
+                "domingos": "cerrado"
+            }
+        },
+        {
+            "nombreDepartamento": "Soporte Técnico",
+            "mediosContacto": ["email"],
+            "horario": {
+                "lunesAViernes": "08:00-18:00",
+                "sabados": "cerrado",
+                "domingos": "cerrado"
+            }
+        }
+    ]
+    db.departamentos.insert_many(departamentos)
+    return departamentos
+
+# ─── FUNCIÓN: Insertar agentes ──────────────────────────────────────────────
+def insertarAgentes(departamentos):
+    agentes = [
+        {
+            "IDAgente": "AGT001",
+            "nombre": "Carlos Ramírez",
+            "email": "carlos@soltura.com",
+            "lenguajes": ["es-CR", "en-US"],
+            "horario": {
+                "lunesAViernes": "08:00-17:00",
+                "sabados": "09:00-12:00",
+                "domingos": "cerrado"
+            },
+            "departamento": "Atención al Cliente",
+            "nivelAutoridad": "senior",
+            "maxCasosSimultaneos": 5
+        },
+        {
+            "IDAgente": "AGT002",
+            "nombre": "Lucía Vega",
+            "email": "lucia@soltura.com",
+            "lenguajes": ["es-CR"],
+            "horario": {
+                "lunesAViernes": "10:00-18:00",
+                "sabados": "cerrado",
+                "domingos": "cerrado"
+            },
+            "departamento": "Soporte Técnico",
+            "nivelAutoridad": "junior",
+            "maxCasosSimultaneos": 3
+        }
+    ]
+    db.agentes.insert_many(agentes)
+    return agentes
+
+def insertarCasos(usuarios, agentes):
+    casos = [
+        {
+            "CasoID": "C-1001",
+            "categoria": "consulta",
+            "estado": "en espera",
+            "ClienteUsername": "juanp",
+            "agentesAsignados": ["AGT001"],
+            "asunto": "¿Cómo cambio mi contraseña?",
+            "descripcion": "Necesito ayuda para restablecer mi clave.",
+            "fechaCreacion": datetime.now(),
+            "lastUpdated": datetime.now(),
+            "prioridad": "media",
+            "satisfaccionCliente": None,
+            "historial": [
+                {
+                    "autor": "juanp",
+                    "fecha": datetime.now(),
+                    "mensaje": "Hola, necesito cambiar mi contraseña",
+                    "lenguaje": "es-CR"
+                },
+                {
+                    "autor": "AGT001",
+                    "fecha": datetime.now(),
+                    "mensaje": "Claro, puede hacerlo desde el menú de configuración.",
+                    "lenguaje": "es-CR"
+                }
+            ]
+        },
+        {
+            "CasoID": "C-1002",
+            "categoria": "queja",
+            "estado": "en proceso",
+            "ClienteUsername": "anar",
+            "agentesAsignados": ["AGT002"],
+            "asunto": "Problemas con la facturación",
+            "descripcion": "Me cobraron un monto incorrecto en mi factura.",
+            "fechaCreacion": datetime.now(),
+            "lastUpdated": datetime.now(),
+            "prioridad": "alta",
+            "satisfaccionCliente": None,
+            "historial": [
+                {
+                    "autor": "anar",
+                    "fecha": datetime.now(),
+                    "mensaje": "Mi factura tiene un cobro que no reconozco.",
+                    "lenguaje": "es-CR"
+                },
+                {
+                    "autor": "AGT002",
+                    "fecha": datetime.now(),
+                    "mensaje": "Vamos a revisar los detalles de su cuenta.",
+                    "lenguaje": "es-CR"
+                }
+            ]
+        }
+    ]
+    db.casos.insert_many(casos)
+
+
+# ─── FUNCIÓN: Insertar beneficios ──────────────────────────────────────────
+def insertarBeneficios():
+    beneficios = [
+        {
+            "beneficioID": "BEN01",
+            "nombre": "Gimnasio SmartFit",
+            "tipo": "salud",
+            "descripcion": "Acceso a SmartFit en horarios regulares",
+            "unidad": "horas",
+            "cantidad": 6,
+            "frecuencia": "semanal",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN02",
+            "nombre": "Lavandería y aplanchado",
+            "tipo": "hogar",
+            "descripcion": "Servicio completo de lavandería y planchado",
+            "unidad": "servicios",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN03",
+            "nombre": "Limpieza básica de hogar",
+            "tipo": "hogar",
+            "descripcion": "Limpieza básica con personal capacitado",
+            "unidad": "días",
+            "cantidad": 2,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN04",
+            "nombre": "Combustible",
+            "tipo": "movilidad",
+            "descripcion": "Monto mensual para combustible gas o diésel",
+            "unidad": "CRC",
+            "cantidad": 50000,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN05",
+            "nombre": "Corte de pelo (Tito Barbers)",
+            "tipo": "estética",
+            "descripcion": "Corte profesional en Tito Barbers",
+            "unidad": "cortes",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN06",
+            "nombre": "Cenas seleccionadas",
+            "tipo": "alimentación",
+            "descripcion": "Cenas de restaurantes aliados",
+            "unidad": "cenas",
+            "cantidad": 2,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN07",
+            "nombre": "Almuerzos seleccionados",
+            "tipo": "alimentación",
+            "descripcion": "Almuerzos de restaurantes aliados",
+            "unidad": "almuerzos",
+            "cantidad": 4,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN08",
+            "nombre": "Plan móvil (Kolbi)",
+            "tipo": "tecnología",
+            "descripcion": "Plan de datos y llamadas ilimitadas",
+            "unidad": "servicio",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN09",
+            "nombre": "Parqueo",
+            "tipo": "movilidad",
+            "descripcion": "Horas de parqueo en puntos seleccionados",
+            "unidad": "horas",
+            "cantidad": 10,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN10",
+            "nombre": "Grooming para mascota",
+            "tipo": "mascotas",
+            "descripcion": "Servicio de grooming para una mascota",
+            "unidad": "servicio",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN11",
+            "nombre": "Revisión veterinaria",
+            "tipo": "mascotas",
+            "descripcion": "Consulta veterinaria básica",
+            "unidad": "consulta",
+            "cantidad": 1,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN12",
+            "nombre": "Clases de natación o fútbol (niños)",
+            "tipo": "educación",
+            "descripcion": "Clases recreativas para niños",
+            "unidad": "clases",
+            "cantidad": 3,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN13",
+            "nombre": "Uber Eats",
+            "tipo": "alimentación",
+            "descripcion": "Pedidos con envío gratis y 20% descuento",
+            "unidad": "pedidos",
+            "cantidad": 10,
+            "frecuencia": "mensual",
+            "activo": True
+        },
+        {
+            "beneficioID": "BEN14",
+            "nombre": "Uber Rides",
+            "tipo": "movilidad",
+            "descripcion": "Saldo para viajes en Uber",
+            "unidad": "CRC",
+            "cantidad": 7000,
+            "frecuencia": "mensual",
+            "activo": True
+        }
+    ]
+    db.beneficios.insert_many(beneficios)
+    return [b["beneficioID"] for b in beneficios]
+
+
+# ─── FUNCIÓN: Insertar paquetes ────────────────────────────────────────────
+def insertarPaquetes(beneficioIDs):
+    paquetes = [
+        {
+            "paqueteID": "PAX1",
+            "titulo": "Paquete Profesional Joven",
+            "descripcion": "Ideal para profesionales activos que buscan conveniencia",
+            "beneficios": beneficioIDs[0:9],
+            "precioMensual": 25000,
+            "moneda": "CRC",
+            "maxPersonas": 1,
+            "disponible": True,
+            "fechaCreacion": datetime.utcnow(),
+            "fechaUltimaActualizacion": datetime.utcnow()
+        },
+        {
+            "paqueteID": "PAX2",
+            "titulo": "Paquete Full Modern Family",
+            "descripcion": "Pensado para familias modernas que buscan bienestar integral",
+            "beneficios": beneficioIDs[8:] + beneficioIDs[9:],
+            "precioMensual": 45000,
+            "moneda": "CRC",
+            "maxPersonas": 4,
+            "disponible": True,
+            "fechaCreacion": datetime.utcnow(),
+            "fechaUltimaActualizacion": datetime.utcnow()
+        }
+    ]
+    db.paquetesInformativos.insert_many(paquetes)
+    return [paquete["paqueteID"] for paquete in paquetes]
+
+
+# ─── FUNCIÓN: Insertar Reviews con Respuestas ────────────────────────────────
+def insertarReviews(usuarios, paquetes):
+    reviews = [
+        {
+            "ClienteUsername": usuarios[0],
+            "paqueteID": paquetes[0],
+            "calificacion": 4,
+            "comentario": "Buen paquete, pero me gustaría más soporte técnico.",
+            "fecha": datetime.now(),
+            "respuestas": [
+                {
+                    "ClienteUsername": usuarios[1],
+                    "comentario": "Entiendo lo que dices, el soporte técnico podría mejorar.",
+                    "fecha": datetime.now()
+                },
+                {
+                    "ClienteUsername": usuarios[0],
+                    "comentario": "¿Qué tipo de soporte crees que falta? Podría ayudar.",
+                    "fecha": datetime.now()
+                }
+            ]
+        },
+        {
+            "ClienteUsername": usuarios[1],
+            "paqueteID": paquetes[1],
+            "calificacion": 5,
+            "comentario": "Excelente servicio, totalmente recomendado.",
+            "fecha": datetime.now(),
+            "respuestas": []
+        }
+    ]
+    db.reviews.insert_many(reviews)
+    return reviews
+
+
+# ─── FUNCIÓN: Insertar anuncios web ──────────────────────────────────────────
+def insertarAnuncios():
+    anuncios = [
+        {
+            "nombreAnuncio": "BannerPrincipalMigracion",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 15, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 6, 30, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_del_banner_migracion.png",
+                    "texto": "¡Payment Assistant ahora es Soltura! Sigue los pasos en la guía para la fecha en que ocurrirá la migración.",
+                    "fecha": datetime(2025, 5, 15, 0, 0, 0),
+                    "link": "/guia-migracion"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "nombreAnuncio": "PromocionVeranoHome",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 6, 1, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 7, 31, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_promocion_verano_home.jpg",
+                    "texto": "¡Disfruta el verano con Soltura! Descubre nuestras ofertas.",
+                    "link": "/promociones/verano"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "nombreAnuncio": "NuevoPaqueteFamiliar",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 20, 0, 0, 0),
+            "banners": [
+                {
+                    "imagenUrl": "url_tarjeta_familiar.png",
+                    "texto": "Conoce el nuevo Paquete Familiar Plus. ¡Más beneficios para toda la familia!",
+                    "link": "/paquetes/familiar-plus"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "nombreAnuncio": "AnuncioAppMobile",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 5, 10, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 5, 25, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_modal_app.png",
+                    "texto": "Descarga nuestra nueva app y gestiona todo más fácil.",
+                    "link": "/descarga-app"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        },
+        {
+            "nombreAnuncio": "BannerDescuentoJoven",
+            "activo": True,
+            "fechaInicioPublicacion": datetime(2025, 6, 15, 0, 0, 0),
+            "fechaFinPublicacion": datetime(2025, 7, 15, 23, 59, 59),
+            "banners": [
+                {
+                    "imagenUrl": "url_banner_joven.jpg",
+                    "texto": "¡Paquete Joven, listo para cumplir todas sus necesidades básicas!",
+                    "link": "/paquetes/joven"
+                }
+            ],
+            "fechaCreacion": datetime.now()
+        }
+    ]
+    db.anunciosWeb.insert_many(anuncios)
+    return anuncios
+
+
+# ─── EJECUCIÓN DEL SCRIPT COMPLETO ─────────────────────────────────────────
+if __name__ == "__main__":
+    usuarios = insertarUsuarios()
+    departamentos = insertarDepartamentos()
+    agentes = insertarAgentes(departamentos)
+    insertarCasos(usuarios, agentes)
+    beneficio_ids = insertarBeneficios()
+    paquetes = insertarPaquetes(beneficio_ids)
+    insertarReviews(usuarios, paquetes)
+    anuncios = insertarAnuncios() 
+    print("Datos insertados correctamente.")
+
+```
+
+## SQL Server
+```sql
+USE [solturaDB]
+GO
+/****** Object:  Schema [solturaDB]    Script Date: 5/6/2025 5:15:49 PM ******/
+CREATE SCHEMA [solturaDB]
+GO
+/****** Object:  Table [dbo].[sol_migratedUsers]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[sol_migratedUsers](
+	[migratedUserID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[changedPassword] [binary](1) NULL,
+	[platform] [varchar](60) NULL,
+ CONSTRAINT [PK_sol_migratedUsers] PRIMARY KEY CLUSTERED 
+(
+	[migratedUserID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_addresses]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_addresses](
+	[addressid] [int] IDENTITY(1,1) NOT NULL,
+	[line1] [nvarchar](200) NOT NULL,
+	[line2] [nvarchar](200) NULL,
+	[zipcode] [nvarchar](9) NOT NULL,
+	[geoposition] [geometry] NOT NULL,
+	[cityID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_addresses_addressid] PRIMARY KEY CLUSTERED 
+(
+	[addressid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_associateIdentificationTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_associateIdentificationTypes](
+	[identificationTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[description] [nvarchar](100) NOT NULL,
+	[datatype] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_associateIdentificationTypes_identificationTypeID] PRIMARY KEY CLUSTERED 
+(
+	[identificationTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_associatePlans]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_associatePlans](
+	[associatePlanID] [int] IDENTITY(1,1) NOT NULL,
+	[associateID] [int] NOT NULL,
+	[userPlanID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_associatePlans_associatePlanID] PRIMARY KEY CLUSTERED 
+(
+	[associatePlanID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_availablePayMethods]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_availablePayMethods](
+	[available_method_id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](50) NOT NULL,
+	[userID] [int] NOT NULL,
+	[token] [nvarchar](255) NOT NULL,
+	[expToken] [date] NOT NULL,
+	[maskAccount] [nvarchar](50) NOT NULL,
+	[methodID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_availablePayMethods_available_method_id] PRIMARY KEY CLUSTERED 
+(
+	[available_method_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_balances]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_balances](
+	[balanceID] [int] IDENTITY(1,1) NOT NULL,
+	[amount] [decimal](10, 2) NOT NULL,
+	[expirationDate] [datetime2](0) NOT NULL,
+	[lastUpdate] [datetime2](0) NOT NULL,
+	[balanceTypeID] [int] NOT NULL,
+	[planFeatureID] [int] NOT NULL,
+	[userID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_balances_balanceID] PRIMARY KEY CLUSTERED 
+(
+	[balanceID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_city]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_city](
+	[cityID] [int] IDENTITY(1,1) NOT NULL,
+	[stateID] [int] NOT NULL,
+	[name] [nvarchar](60) NOT NULL,
+ CONSTRAINT [PK_sol_city_cityID] PRIMARY KEY CLUSTERED 
+(
+	[cityID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_communicationChannels]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_communicationChannels](
+	[communicationChannelID] [int] NOT NULL,
+	[channel] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_sol_communicationChannels_communicationChannelID] PRIMARY KEY CLUSTERED 
+(
+	[communicationChannelID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_contact_departments]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_contact_departments](
+	[contactDepartmentId] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_contact_departments_contactDepartmentId] PRIMARY KEY CLUSTERED 
+(
+	[contactDepartmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_contact_info]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_contact_info](
+	[contactInfoID] [int] IDENTITY(1,1) NOT NULL,
+	[value] [nvarchar](100) NOT NULL,
+	[enable] [binary](1) NOT NULL,
+	[lastUpdate] [datetime2](0) NOT NULL,
+	[contactTypeID] [int] NOT NULL,
+	[contactDepartmentId] [int] NOT NULL,
+	[partnerId] [int] NOT NULL,
+ CONSTRAINT [PK_sol_contact_info_contactInfoID] PRIMARY KEY CLUSTERED 
+(
+	[contactInfoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_contactType]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_contactType](
+	[contactTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_contactType_contactTypeID] PRIMARY KEY CLUSTERED 
+(
+	[contactTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_countries]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_countries](
+	[countryID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](60) NOT NULL,
+ CONSTRAINT [PK_sol_countries_countryID] PRIMARY KEY CLUSTERED 
+(
+	[countryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_currencies]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_currencies](
+	[currency_id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](50) NOT NULL,
+	[acronym] [nvarchar](5) NOT NULL,
+	[symbol] [nvarchar](5) NOT NULL,
+	[countryID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_currencies_currency_id] PRIMARY KEY CLUSTERED 
+(
+	[currency_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_deals]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_deals](
+	[dealId] [int] IDENTITY(1,1) NOT NULL,
+	[partnerId] [int] NOT NULL,
+	[dealDescription] [nvarchar](250) NOT NULL,
+	[sealDate] [datetime2](0) NOT NULL,
+	[endDate] [datetime2](0) NOT NULL,
+	[solturaComission] [decimal](5, 2) NOT NULL,
+	[discount] [decimal](5, 2) NOT NULL,
+	[isActive] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_deals_dealId] PRIMARY KEY CLUSTERED 
+(
+	[dealId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_enterprise_size]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_enterprise_size](
+	[enterpriseSizeId] [int] IDENTITY(1,1) NOT NULL,
+	[size] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_enterprise_size_enterpriseSizeId] PRIMARY KEY CLUSTERED 
+(
+	[enterpriseSizeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_exchangeCurrencies]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_exchangeCurrencies](
+	[exchangeCurrencyID] [int] IDENTITY(1,1) NOT NULL,
+	[sourceID] [int] NOT NULL,
+	[destinyID] [int] NOT NULL,
+	[startDate] [date] NOT NULL,
+	[endDate] [date] NULL,
+	[exchange_rate] [decimal](12, 3) NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[currentExchange] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_exchangeCurrencies_exchangeCurrencyID] PRIMARY KEY CLUSTERED 
+(
+	[exchangeCurrencyID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_featureAvailableLocations]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_featureAvailableLocations](
+	[locationID] [int] IDENTITY(1,1) NOT NULL,
+	[featurePerPlanID] [int] NOT NULL,
+	[partnerAddressId] [int] NOT NULL,
+	[available] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_featureAvailableLocations_locationID] PRIMARY KEY CLUSTERED 
+(
+	[locationID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_featurePrices]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_featurePrices](
+	[featurePriceID] [int] IDENTITY(1,1) NOT NULL,
+	[originalPrice] [decimal](10, 2) NULL,
+	[discountedPrice] [decimal](10, 2) NULL,
+	[finalPrice] [decimal](10, 2) NULL,
+	[currency_id] [int] NOT NULL,
+	[current] [binary](1) NOT NULL,
+	[variable] [binary](1) NOT NULL,
+	[planFeatureID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_featurePrices_featurePriceID] PRIMARY KEY CLUSTERED 
+(
+	[featurePriceID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_featuresPerPlans]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_featuresPerPlans](
+	[featurePerPlansID] [int] IDENTITY(1,1) NOT NULL,
+	[planFeatureID] [int] NOT NULL,
+	[planID] [int] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_featuresPerPlans_featurePerPlansID] PRIMARY KEY CLUSTERED 
+(
+	[featurePerPlansID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_featureTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_featureTypes](
+	[featureTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[type] [nvarchar](75) NOT NULL,
+ CONSTRAINT [PK_sol_featureTypes_featureTypeID] PRIMARY KEY CLUSTERED 
+(
+	[featureTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_languages]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_languages](
+	[languageID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+	[culture] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_sol_languages_languageID] PRIMARY KEY CLUSTERED 
+(
+	[languageID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_logs]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_logs](
+	[log_id] [int] IDENTITY(1,1) NOT NULL,
+	[description] [nvarchar](200) NOT NULL,
+	[postTime] [datetime2](0) NOT NULL,
+	[computer] [nvarchar](75) NOT NULL,
+	[username] [nvarchar](50) NOT NULL,
+	[trace] [nvarchar](100) NOT NULL,
+	[referenceId1] [bigint] NULL,
+	[referenceId2] [bigint] NULL,
+	[value1] [nvarchar](180) NULL,
+	[value2] [nvarchar](180) NULL,
+	[checksum] [varbinary](250) NOT NULL,
+	[logSeverityID] [int] NOT NULL,
+	[logTypesID] [int] NOT NULL,
+	[logSourcesID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_logs_log_id] PRIMARY KEY CLUSTERED 
+(
+	[log_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_logSources]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_logSources](
+	[logSourcesID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_logSources_logSourcesID] PRIMARY KEY CLUSTERED 
+(
+	[logSourcesID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_logsSererity]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_logsSererity](
+	[logSererityID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_logsSererity_logSererityID] PRIMARY KEY CLUSTERED 
+(
+	[logSererityID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_logTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_logTypes](
+	[logTypesID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+	[reference1Description] [nvarchar](75) NULL,
+	[reference2Description] [nvarchar](75) NULL,
+	[value1Description] [nvarchar](75) NULL,
+	[value2Description] [nvarchar](75) NULL,
+ CONSTRAINT [PK_sol_logTypes_logTypesID] PRIMARY KEY CLUSTERED 
+(
+	[logTypesID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_mediaFile]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_mediaFile](
+	[mediaFileID] [int] IDENTITY(1,1) NOT NULL,
+	[URL] [nvarchar](200) NOT NULL,
+	[deleted] [binary](1) NOT NULL,
+	[media_type_id] [smallint] NOT NULL,
+	[userID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_mediaFile_mediaFileID] PRIMARY KEY CLUSTERED 
+(
+	[mediaFileID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_mediaTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_mediaTypes](
+	[mediaTypeID] [smallint] IDENTITY(1,1) NOT NULL,
+	[type] [nvarchar](30) NOT NULL,
+ CONSTRAINT [PK_sol_mediaTypes_mediaTypeID] PRIMARY KEY CLUSTERED 
+(
+	[mediaTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_modules]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_modules](
+	[moduleID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](30) NOT NULL,
+ CONSTRAINT [PK_sol_modules_moduleID] PRIMARY KEY CLUSTERED 
+(
+	[moduleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_notificationConfigurations]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_notificationConfigurations](
+	[configurationID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[notificationTypeID] [smallint] NOT NULL,
+	[communicationChannelID] [int] NOT NULL,
+	[settings] [nvarchar](max) NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_notificationConfigurations_configurationID] PRIMARY KEY CLUSTERED 
+(
+	[configurationID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_notifications]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_notifications](
+	[notificationID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[notification_type_id] [smallint] NOT NULL,
+	[message] [nvarchar](300) NOT NULL,
+	[sentTime] [datetime2](0) NOT NULL,
+	[status] [smallint] NOT NULL,
+	[communicationChannelID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_notifications_notificationID] PRIMARY KEY CLUSTERED 
+(
+	[notificationID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_notificationTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_notificationTypes](
+	[notificationTypeID] [smallint] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](70) NOT NULL,
+ CONSTRAINT [PK_sol_notificationTypes_notificationTypeID] PRIMARY KEY CLUSTERED 
+(
+	[notificationTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_partner_addresses]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_partner_addresses](
+	[partnerAddressId] [int] IDENTITY(1,1) NOT NULL,
+	[partnerId] [int] NOT NULL,
+	[addressid] [int] NOT NULL,
+ CONSTRAINT [PK_sol_partner_addresses_partnerAddressId] PRIMARY KEY CLUSTERED 
+(
+	[partnerAddressId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_partners]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_partners](
+	[partnerId] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](60) NOT NULL,
+	[registerDate] [datetime2](0) NOT NULL,
+	[state] [smallint] NOT NULL,
+	[identificationtypeId] [int] NOT NULL,
+	[enterpriseSizeId] [int] NOT NULL,
+	[identification] [nvarchar](90) NOT NULL,
+ CONSTRAINT [PK_sol_partners_partnerId] PRIMARY KEY CLUSTERED 
+(
+	[partnerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_partners_identifications_types]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_partners_identifications_types](
+	[identificationtypeId] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_partners_identifications_types_identificationtypeId] PRIMARY KEY CLUSTERED 
+(
+	[identificationtypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_payments]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_payments](
+	[paymentID] [int] IDENTITY(1,1) NOT NULL,
+	[availableMethodID] [int] NOT NULL,
+	[currency_id] [int] NOT NULL,
+	[amount] [decimal](9, 2) NOT NULL,
+	[date_pay] [date] NOT NULL,
+	[confirmed] [binary](1) NOT NULL,
+	[result] [nvarchar](200) NOT NULL,
+	[auth] [nvarchar](60) NOT NULL,
+	[reference] [nvarchar](100) NOT NULL,
+	[charge_token] [varbinary](255) NOT NULL,
+	[description] [nvarchar](100) NOT NULL,
+	[error] [nvarchar](200) NULL,
+	[checksum] [varbinary](250) NOT NULL,
+	[methodID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_payments_paymentID] PRIMARY KEY CLUSTERED 
+(
+	[paymentID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_payMethod]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_payMethod](
+	[payMethodID] [int] NOT NULL,
+	[name] [nvarchar](50) NOT NULL,
+	[apiURL] [nvarchar](200) NOT NULL,
+	[secretKey] [varbinary](255) NOT NULL,
+	[key] [nvarchar](255) NOT NULL,
+	[logoIconURL] [nvarchar](200) NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_payMethod_payMethodID] PRIMARY KEY CLUSTERED 
+(
+	[payMethodID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_permissions]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_permissions](
+	[permissionID] [int] IDENTITY(1,1) NOT NULL,
+	[description] [nvarchar](200) NOT NULL,
+	[code] [nvarchar](10) NOT NULL,
+	[moduleID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_permissions_permissionID] PRIMARY KEY CLUSTERED 
+(
+	[permissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [sol_permissions$code_UNIQUE] UNIQUE NONCLUSTERED 
+(
+	[code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_planFeatures]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_planFeatures](
+	[planFeatureID] [int] IDENTITY(1,1) NOT NULL,
+	[dealId] [int] NOT NULL,
+	[description] [nvarchar](100) NOT NULL,
+	[unit] [nvarchar](50) NOT NULL,
+	[consumableQuantity] [int] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[isRecurrent] [binary](1) NOT NULL,
+	[scheduleID] [int] NOT NULL,
+	[featureTypeID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_planFeatures_planFeatureID] PRIMARY KEY CLUSTERED 
+(
+	[planFeatureID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_planPrices]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_planPrices](
+	[planPriceID] [int] IDENTITY(1,1) NOT NULL,
+	[planID] [int] NOT NULL,
+	[amount] [decimal](10, 2) NOT NULL,
+	[currency_id] [int] NOT NULL,
+	[postTime] [datetime2](0) NOT NULL,
+	[endDate] [nvarchar](45) NOT NULL,
+	[current] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_planPrices_planPriceID] PRIMARY KEY CLUSTERED 
+(
+	[planPriceID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_plans]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_plans](
+	[planID] [int] IDENTITY(1,1) NOT NULL,
+	[description] [nvarchar](100) NOT NULL,
+	[planTypeID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_plans_planID] PRIMARY KEY CLUSTERED 
+(
+	[planID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_planTransactions]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_planTransactions](
+	[planTransactionID] [int] IDENTITY(1,1) NOT NULL,
+	[planTransactionTypeID] [int] NOT NULL,
+	[date] [datetime2](0) NOT NULL,
+	[postTime] [datetime2](0) NOT NULL,
+	[amount] [decimal](10, 2) NOT NULL,
+	[checksum] [varbinary](250) NOT NULL,
+	[userID] [int] NOT NULL,
+	[associateID] [int] NOT NULL,
+	[partnerAddressId] [int] NULL,
+ CONSTRAINT [PK_sol_planTransactions_planTransactionID] PRIMARY KEY CLUSTERED 
+(
+	[planTransactionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_planTransactionTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_planTransactionTypes](
+	[planTransactionTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[type] [nvarchar](60) NOT NULL,
+ CONSTRAINT [PK_sol_planTransactionTypes_planTransactionTypeID] PRIMARY KEY CLUSTERED 
+(
+	[planTransactionTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_planTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_planTypes](
+	[planTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[type] [nvarchar](50) NOT NULL,
+	[userID] [int] NULL,
+ CONSTRAINT [PK_sol_planTypes_planTypeID] PRIMARY KEY CLUSTERED 
+(
+	[planTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_rolePermissions]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_rolePermissions](
+	[rolePermissionID] [int] IDENTITY(1,1) NOT NULL,
+	[roleID] [smallint] NOT NULL,
+	[permissionID] [int] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[deleted] [binary](1) NOT NULL,
+	[lastPermUpdate] [datetime2](0) NOT NULL,
+	[username] [nvarchar](45) NOT NULL,
+	[checksum] [varbinary](250) NOT NULL,
+ CONSTRAINT [PK_sol_rolePermissions_rolePermissionID] PRIMARY KEY CLUSTERED 
+(
+	[rolePermissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_roles]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_roles](
+	[roleID] [smallint] IDENTITY(1,1) NOT NULL,
+	[roleName] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_roles_roleID] PRIMARY KEY CLUSTERED 
+(
+	[roleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_schedules]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_schedules](
+	[scheduleID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](70) NOT NULL,
+	[repit] [binary](1) NOT NULL,
+	[repetitions] [smallint] NOT NULL,
+	[recurrencyType] [smallint] NOT NULL,
+	[endDate] [datetime2](0) NULL,
+	[startDate] [datetime2](0) NOT NULL,
+ CONSTRAINT [PK_sol_schedules_scheduleID] PRIMARY KEY CLUSTERED 
+(
+	[scheduleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_schedulesDetails]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_schedulesDetails](
+	[schedulesDetailsID] [int] IDENTITY(1,1) NOT NULL,
+	[deleted] [binary](1) NOT NULL,
+	[schedule_id] [int] NOT NULL,
+	[baseDate] [datetime2](0) NOT NULL,
+	[datePart] [date] NOT NULL,
+	[lastExecute] [datetime2](0) NULL,
+	[nextExecute] [datetime2](0) NOT NULL,
+	[description] [varchar](100) NOT NULL,
+	[detail] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_sol_schedulesDetails_schedulesDetailsID] PRIMARY KEY CLUSTERED 
+(
+	[schedulesDetailsID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_states]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_states](
+	[stateID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](40) NOT NULL,
+	[countryID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_states_stateID] PRIMARY KEY CLUSTERED 
+(
+	[stateID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_transactions]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_transactions](
+	[transactionsID] [int] IDENTITY(1,1) NOT NULL,
+	[payment_id] [int] NULL,
+	[date] [datetime2](0) NOT NULL,
+	[postTime] [datetime2](0) NOT NULL,
+	[refNumber] [nvarchar](50) NOT NULL,
+	[user_id] [int] NOT NULL,
+	[checksum] [varbinary](250) NOT NULL,
+	[exchangeRate] [decimal](12, 3) NOT NULL,
+	[convertedAmount] [decimal](12, 2) NOT NULL,
+	[transactionTypesID] [int] NOT NULL,
+	[transactionSubtypesID] [int] NOT NULL,
+	[amount] [decimal](12, 2) NULL,
+	[exchangeCurrencyID] [int] NULL,
+ CONSTRAINT [PK_sol_transactions_transactionsID] PRIMARY KEY CLUSTERED 
+(
+	[transactionsID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_transactionSubtypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_transactionSubtypes](
+	[transactionSubtypeID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_transactionSubtypes_transactionSubtypeID] PRIMARY KEY CLUSTERED 
+(
+	[transactionSubtypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_transactionTypes]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_transactionTypes](
+	[transactionTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](45) NOT NULL,
+ CONSTRAINT [PK_sol_transactionTypes_transactionTypeID] PRIMARY KEY CLUSTERED 
+(
+	[transactionTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_translations]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_translations](
+	[translationsID] [int] IDENTITY(1,1) NOT NULL,
+	[moduleID] [int] NOT NULL,
+	[code] [nvarchar](100) NOT NULL,
+	[caption] [nvarchar](100) NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[languageID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_translations_translationsID] PRIMARY KEY CLUSTERED 
+(
+	[translationsID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_userAssociateIdentifications]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_userAssociateIdentifications](
+	[associateID] [int] NOT NULL,
+	[token] [varbinary](max) NOT NULL,
+	[userID] [int] NOT NULL,
+	[identificationTypeID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_userAssociateIdentifications_associateID] PRIMARY KEY CLUSTERED 
+(
+	[associateID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_userPermissions]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_userPermissions](
+	[userPermissionID] [int] IDENTITY(1,1) NOT NULL,
+	[permissionID] [int] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[deleted] [binary](1) NOT NULL,
+	[lastPermUpdate] [datetime2](0) NOT NULL,
+	[username] [nvarchar](45) NOT NULL,
+	[checksum] [varbinary](250) NOT NULL,
+	[userID] [int] NOT NULL,
+ CONSTRAINT [PK_sol_userPermissions_userPermissionID] PRIMARY KEY CLUSTERED 
+(
+	[userPermissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_userPlans]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_userPlans](
+	[userPlanID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[planPriceID] [int] NOT NULL,
+	[scheduleID] [int] NOT NULL,
+	[adquisition] [date] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_userPlans_userPlanID] PRIMARY KEY CLUSTERED 
+(
+	[userPlanID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_userRoles]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_userRoles](
+	[userID] [int] IDENTITY(1,1) NOT NULL,
+	[role_id] [smallint] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+	[deleted] [binary](1) NOT NULL,
+	[lastUpdate] [datetime2](0) NOT NULL,
+	[username] [nvarchar](45) NOT NULL,
+	[checksum] [varbinary](250) NOT NULL,
+ CONSTRAINT [PK_sol_userRoles_userID] PRIMARY KEY CLUSTERED 
+(
+	[userID] ASC,
+	[role_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_users]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_users](
+	[userID] [int] IDENTITY(1,1) NOT NULL,
+	[email] [nvarchar](80) NOT NULL,
+	[firstName] [nvarchar](50) NOT NULL,
+	[lastName] [nvarchar](50) NOT NULL,
+	[password] [varbinary](250) NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_users_userID] PRIMARY KEY CLUSTERED 
+(
+	[userID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [sol_users$email_UNIQUE] UNIQUE NONCLUSTERED 
+(
+	[email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [solturaDB].[sol_usersAdresses]    Script Date: 5/6/2025 5:15:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [solturaDB].[sol_usersAdresses](
+	[userAddressID] [int] IDENTITY(1,1) NOT NULL,
+	[userID] [int] NOT NULL,
+	[addressID] [int] NOT NULL,
+	[enabled] [binary](1) NOT NULL,
+ CONSTRAINT [PK_sol_usersAdresses_userAddressID] PRIMARY KEY CLUSTERED 
+(
+	[userAddressID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[sol_migratedUsers] ADD  CONSTRAINT [DF_sol_migratedUsers_changedPassword]  DEFAULT (0x00) FOR [changedPassword]
+GO
+ALTER TABLE [solturaDB].[sol_addresses] ADD  DEFAULT (NULL) FOR [line2]
+GO
+ALTER TABLE [solturaDB].[sol_contact_info] ADD  DEFAULT (0x01) FOR [enable]
+GO
+ALTER TABLE [solturaDB].[sol_contact_info] ADD  DEFAULT (getdate()) FOR [lastUpdate]
+GO
+ALTER TABLE [solturaDB].[sol_deals] ADD  DEFAULT (0x01) FOR [isActive]
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies] ADD  DEFAULT (NULL) FOR [endDate]
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies] ADD  DEFAULT (0x01) FOR [currentExchange]
+GO
+ALTER TABLE [solturaDB].[sol_featureAvailableLocations] ADD  DEFAULT (0x01) FOR [available]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] ADD  DEFAULT (NULL) FOR [originalPrice]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] ADD  DEFAULT (NULL) FOR [discountedPrice]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] ADD  DEFAULT (NULL) FOR [finalPrice]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] ADD  DEFAULT (0x01) FOR [current]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] ADD  DEFAULT (0x00) FOR [variable]
+GO
+ALTER TABLE [solturaDB].[sol_featuresPerPlans] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_logs] ADD  DEFAULT (NULL) FOR [referenceId1]
+GO
+ALTER TABLE [solturaDB].[sol_logs] ADD  DEFAULT (NULL) FOR [referenceId2]
+GO
+ALTER TABLE [solturaDB].[sol_logs] ADD  DEFAULT (NULL) FOR [value1]
+GO
+ALTER TABLE [solturaDB].[sol_logs] ADD  DEFAULT (NULL) FOR [value2]
+GO
+ALTER TABLE [solturaDB].[sol_logTypes] ADD  DEFAULT (NULL) FOR [reference1Description]
+GO
+ALTER TABLE [solturaDB].[sol_logTypes] ADD  DEFAULT (NULL) FOR [reference2Description]
+GO
+ALTER TABLE [solturaDB].[sol_logTypes] ADD  DEFAULT (NULL) FOR [value1Description]
+GO
+ALTER TABLE [solturaDB].[sol_logTypes] ADD  DEFAULT (NULL) FOR [value2Description]
+GO
+ALTER TABLE [solturaDB].[sol_mediaFile] ADD  DEFAULT (0x00) FOR [deleted]
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_partners] ADD  DEFAULT ((1)) FOR [state]
+GO
+ALTER TABLE [solturaDB].[sol_payments] ADD  DEFAULT (0x00) FOR [confirmed]
+GO
+ALTER TABLE [solturaDB].[sol_payments] ADD  DEFAULT (N'En proceso') FOR [result]
+GO
+ALTER TABLE [solturaDB].[sol_payments] ADD  DEFAULT (NULL) FOR [error]
+GO
+ALTER TABLE [solturaDB].[sol_payMethod] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_planPrices] ADD  DEFAULT (0x01) FOR [current]
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions] ADD  DEFAULT (NULL) FOR [partnerAddressId]
+GO
+ALTER TABLE [solturaDB].[sol_planTypes] ADD  DEFAULT (NULL) FOR [userID]
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions] ADD  DEFAULT (0x00) FOR [deleted]
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions] ADD  DEFAULT (getdate()) FOR [lastPermUpdate]
+GO
+ALTER TABLE [solturaDB].[sol_schedules] ADD  DEFAULT (NULL) FOR [endDate]
+GO
+ALTER TABLE [solturaDB].[sol_schedulesDetails] ADD  DEFAULT (0x00) FOR [deleted]
+GO
+ALTER TABLE [solturaDB].[sol_schedulesDetails] ADD  DEFAULT (NULL) FOR [lastExecute]
+GO
+ALTER TABLE [solturaDB].[sol_transactions] ADD  DEFAULT (NULL) FOR [payment_id]
+GO
+ALTER TABLE [solturaDB].[sol_transactions] ADD  DEFAULT (NULL) FOR [amount]
+GO
+ALTER TABLE [solturaDB].[sol_transactions] ADD  DEFAULT (NULL) FOR [exchangeCurrencyID]
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions] ADD  DEFAULT (0x00) FOR [deleted]
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions] ADD  DEFAULT (getdate()) FOR [lastPermUpdate]
+GO
+ALTER TABLE [solturaDB].[sol_userPlans] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_userRoles] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_userRoles] ADD  DEFAULT (0x00) FOR [deleted]
+GO
+ALTER TABLE [solturaDB].[sol_userRoles] ADD  DEFAULT (getdate()) FOR [lastUpdate]
+GO
+ALTER TABLE [solturaDB].[sol_users] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [solturaDB].[sol_usersAdresses] ADD  DEFAULT (0x01) FOR [enabled]
+GO
+ALTER TABLE [dbo].[sol_migratedUsers]  WITH NOCHECK ADD  CONSTRAINT [FK_sol_migratedUsers_sol_users] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [dbo].[sol_migratedUsers] NOCHECK CONSTRAINT [FK_sol_migratedUsers_sol_users]
+GO
+ALTER TABLE [solturaDB].[sol_addresses]  WITH NOCHECK ADD  CONSTRAINT [sol_addresses$fk_pay_Addresses_pay_city1] FOREIGN KEY([cityID])
+REFERENCES [solturaDB].[sol_city] ([cityID])
+GO
+ALTER TABLE [solturaDB].[sol_addresses] NOCHECK CONSTRAINT [sol_addresses$fk_pay_Addresses_pay_city1]
+GO
+ALTER TABLE [solturaDB].[sol_associatePlans]  WITH NOCHECK ADD  CONSTRAINT [sol_associatePlans$fk_sol_associatePlans_sol_userAssociateIdentifications1] FOREIGN KEY([associateID])
+REFERENCES [solturaDB].[sol_userAssociateIdentifications] ([associateID])
+GO
+ALTER TABLE [solturaDB].[sol_associatePlans] NOCHECK CONSTRAINT [sol_associatePlans$fk_sol_associatePlans_sol_userAssociateIdentifications1]
+GO
+ALTER TABLE [solturaDB].[sol_associatePlans]  WITH NOCHECK ADD  CONSTRAINT [sol_associatePlans$fk_sol_associatePlans_sol_userPlans1] FOREIGN KEY([userPlanID])
+REFERENCES [solturaDB].[sol_userPlans] ([userPlanID])
+GO
+ALTER TABLE [solturaDB].[sol_associatePlans] NOCHECK CONSTRAINT [sol_associatePlans$fk_sol_associatePlans_sol_userPlans1]
+GO
+ALTER TABLE [solturaDB].[sol_availablePayMethods]  WITH NOCHECK ADD  CONSTRAINT [sol_availablePayMethods$fk_pay_available_media_pay_pay_method1] FOREIGN KEY([methodID])
+REFERENCES [solturaDB].[sol_payMethod] ([payMethodID])
+GO
+ALTER TABLE [solturaDB].[sol_availablePayMethods] NOCHECK CONSTRAINT [sol_availablePayMethods$fk_pay_available_media_pay_pay_method1]
+GO
+ALTER TABLE [solturaDB].[sol_availablePayMethods]  WITH NOCHECK ADD  CONSTRAINT [sol_availablePayMethods$fk_pay_available_media_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_availablePayMethods] NOCHECK CONSTRAINT [sol_availablePayMethods$fk_pay_available_media_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_balances]  WITH NOCHECK ADD  CONSTRAINT [sol_balances$fk_sol_balances_sol_planFeatures1] FOREIGN KEY([planFeatureID])
+REFERENCES [solturaDB].[sol_planFeatures] ([planFeatureID])
+GO
+ALTER TABLE [solturaDB].[sol_balances] NOCHECK CONSTRAINT [sol_balances$fk_sol_balances_sol_planFeatures1]
+GO
+ALTER TABLE [solturaDB].[sol_balances]  WITH NOCHECK ADD  CONSTRAINT [sol_balances$fk_sol_balances_sol_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_balances] NOCHECK CONSTRAINT [sol_balances$fk_sol_balances_sol_users1]
+GO
+ALTER TABLE [solturaDB].[sol_city]  WITH NOCHECK ADD  CONSTRAINT [sol_city$fk_pay_city_pay_states1] FOREIGN KEY([stateID])
+REFERENCES [solturaDB].[sol_states] ([stateID])
+GO
+ALTER TABLE [solturaDB].[sol_city] NOCHECK CONSTRAINT [sol_city$fk_pay_city_pay_states1]
+GO
+ALTER TABLE [solturaDB].[sol_contact_info]  WITH NOCHECK ADD  CONSTRAINT [sol_contact_info$fk_pay_contact_info_pay_contact_type1] FOREIGN KEY([contactTypeID])
+REFERENCES [solturaDB].[sol_contactType] ([contactTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_contact_info] NOCHECK CONSTRAINT [sol_contact_info$fk_pay_contact_info_pay_contact_type1]
+GO
+ALTER TABLE [solturaDB].[sol_contact_info]  WITH NOCHECK ADD  CONSTRAINT [sol_contact_info$fk_sol_contact_info_sol_contact_departments1] FOREIGN KEY([contactDepartmentId])
+REFERENCES [solturaDB].[sol_contact_departments] ([contactDepartmentId])
+GO
+ALTER TABLE [solturaDB].[sol_contact_info] NOCHECK CONSTRAINT [sol_contact_info$fk_sol_contact_info_sol_contact_departments1]
+GO
+ALTER TABLE [solturaDB].[sol_contact_info]  WITH NOCHECK ADD  CONSTRAINT [sol_contact_info$fk_sol_contact_info_sol_partners1] FOREIGN KEY([partnerId])
+REFERENCES [solturaDB].[sol_partners] ([partnerId])
+GO
+ALTER TABLE [solturaDB].[sol_contact_info] NOCHECK CONSTRAINT [sol_contact_info$fk_sol_contact_info_sol_partners1]
+GO
+ALTER TABLE [solturaDB].[sol_currencies]  WITH NOCHECK ADD  CONSTRAINT [sol_currencies$fk_pay_currencies_pay_countries1] FOREIGN KEY([countryID])
+REFERENCES [solturaDB].[sol_countries] ([countryID])
+GO
+ALTER TABLE [solturaDB].[sol_currencies] NOCHECK CONSTRAINT [sol_currencies$fk_pay_currencies_pay_countries1]
+GO
+ALTER TABLE [solturaDB].[sol_deals]  WITH NOCHECK ADD  CONSTRAINT [sol_deals$fk_sol_deals_sol_partners1] FOREIGN KEY([partnerId])
+REFERENCES [solturaDB].[sol_partners] ([partnerId])
+GO
+ALTER TABLE [solturaDB].[sol_deals] NOCHECK CONSTRAINT [sol_deals$fk_sol_deals_sol_partners1]
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies]  WITH NOCHECK ADD  CONSTRAINT [sol_exchangeCurrencies$fk_pay_exchange_currency_pay_currency1] FOREIGN KEY([sourceID])
+REFERENCES [solturaDB].[sol_currencies] ([currency_id])
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies] NOCHECK CONSTRAINT [sol_exchangeCurrencies$fk_pay_exchange_currency_pay_currency1]
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies]  WITH NOCHECK ADD  CONSTRAINT [sol_exchangeCurrencies$fk_pay_exchange_currency_pay_currency2] FOREIGN KEY([destinyID])
+REFERENCES [solturaDB].[sol_currencies] ([currency_id])
+GO
+ALTER TABLE [solturaDB].[sol_exchangeCurrencies] NOCHECK CONSTRAINT [sol_exchangeCurrencies$fk_pay_exchange_currency_pay_currency2]
+GO
+ALTER TABLE [solturaDB].[sol_featureAvailableLocations]  WITH NOCHECK ADD  CONSTRAINT [sol_featureAvailableLocations$fk_sol_featureLocations_sol_featuresPerPlans1] FOREIGN KEY([featurePerPlanID])
+REFERENCES [solturaDB].[sol_featuresPerPlans] ([featurePerPlansID])
+GO
+ALTER TABLE [solturaDB].[sol_featureAvailableLocations] NOCHECK CONSTRAINT [sol_featureAvailableLocations$fk_sol_featureLocations_sol_featuresPerPlans1]
+GO
+ALTER TABLE [solturaDB].[sol_featureAvailableLocations]  WITH NOCHECK ADD  CONSTRAINT [sol_featureAvailableLocations$fk_sol_featureLocations_sol_partner_addresses1] FOREIGN KEY([partnerAddressId])
+REFERENCES [solturaDB].[sol_partner_addresses] ([partnerAddressId])
+GO
+ALTER TABLE [solturaDB].[sol_featureAvailableLocations] NOCHECK CONSTRAINT [sol_featureAvailableLocations$fk_sol_featureLocations_sol_partner_addresses1]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices]  WITH NOCHECK ADD  CONSTRAINT [sol_featurePrices$fk_sol_featurePrices_sol_currencies1] FOREIGN KEY([currency_id])
+REFERENCES [solturaDB].[sol_currencies] ([currency_id])
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] NOCHECK CONSTRAINT [sol_featurePrices$fk_sol_featurePrices_sol_currencies1]
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices]  WITH NOCHECK ADD  CONSTRAINT [sol_featurePrices$fk_sol_featurePrices_sol_planFeatures1] FOREIGN KEY([planFeatureID])
+REFERENCES [solturaDB].[sol_planFeatures] ([planFeatureID])
+GO
+ALTER TABLE [solturaDB].[sol_featurePrices] NOCHECK CONSTRAINT [sol_featurePrices$fk_sol_featurePrices_sol_planFeatures1]
+GO
+ALTER TABLE [solturaDB].[sol_featuresPerPlans]  WITH NOCHECK ADD  CONSTRAINT [sol_featuresPerPlans$fk_sol_featuresPerPlans_sol_planFeatures1] FOREIGN KEY([planFeatureID])
+REFERENCES [solturaDB].[sol_planFeatures] ([planFeatureID])
+GO
+ALTER TABLE [solturaDB].[sol_featuresPerPlans] NOCHECK CONSTRAINT [sol_featuresPerPlans$fk_sol_featuresPerPlans_sol_planFeatures1]
+GO
+ALTER TABLE [solturaDB].[sol_featuresPerPlans]  WITH NOCHECK ADD  CONSTRAINT [sol_featuresPerPlans$fk_sol_featuresPerPlans_sol_plans1] FOREIGN KEY([planID])
+REFERENCES [solturaDB].[sol_plans] ([planID])
+GO
+ALTER TABLE [solturaDB].[sol_featuresPerPlans] NOCHECK CONSTRAINT [sol_featuresPerPlans$fk_sol_featuresPerPlans_sol_plans1]
+GO
+ALTER TABLE [solturaDB].[sol_logs]  WITH NOCHECK ADD  CONSTRAINT [sol_logs$fk_pay_logs_pay_log_severity1] FOREIGN KEY([logSeverityID])
+REFERENCES [solturaDB].[sol_logsSererity] ([logSererityID])
+GO
+ALTER TABLE [solturaDB].[sol_logs] NOCHECK CONSTRAINT [sol_logs$fk_pay_logs_pay_log_severity1]
+GO
+ALTER TABLE [solturaDB].[sol_logs]  WITH NOCHECK ADD  CONSTRAINT [sol_logs$fk_pay_logs_pay_log_sources1] FOREIGN KEY([logSourcesID])
+REFERENCES [solturaDB].[sol_logSources] ([logSourcesID])
+GO
+ALTER TABLE [solturaDB].[sol_logs] NOCHECK CONSTRAINT [sol_logs$fk_pay_logs_pay_log_sources1]
+GO
+ALTER TABLE [solturaDB].[sol_logs]  WITH NOCHECK ADD  CONSTRAINT [sol_logs$fk_pay_logs_pay_log_types1] FOREIGN KEY([logTypesID])
+REFERENCES [solturaDB].[sol_logTypes] ([logTypesID])
+GO
+ALTER TABLE [solturaDB].[sol_logs] NOCHECK CONSTRAINT [sol_logs$fk_pay_logs_pay_log_types1]
+GO
+ALTER TABLE [solturaDB].[sol_mediaFile]  WITH NOCHECK ADD  CONSTRAINT [sol_mediaFile$fk_pay_media_files_pay_media_types] FOREIGN KEY([media_type_id])
+REFERENCES [solturaDB].[sol_mediaTypes] ([mediaTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_mediaFile] NOCHECK CONSTRAINT [sol_mediaFile$fk_pay_media_files_pay_media_types]
+GO
+ALTER TABLE [solturaDB].[sol_mediaFile]  WITH NOCHECK ADD  CONSTRAINT [sol_mediaFile$fk_pay_media_files_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_mediaFile] NOCHECK CONSTRAINT [sol_mediaFile$fk_pay_media_files_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations]  WITH NOCHECK ADD  CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_communication_channels1] FOREIGN KEY([communicationChannelID])
+REFERENCES [solturaDB].[sol_communicationChannels] ([communicationChannelID])
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations] NOCHECK CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_communication_channels1]
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations]  WITH NOCHECK ADD  CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_notification_types1] FOREIGN KEY([notificationTypeID])
+REFERENCES [solturaDB].[sol_notificationTypes] ([notificationTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations] NOCHECK CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_notification_types1]
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations]  WITH NOCHECK ADD  CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_users2] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_notificationConfigurations] NOCHECK CONSTRAINT [sol_notificationConfigurations$fk_notification_configurations_pay_users2]
+GO
+ALTER TABLE [solturaDB].[sol_notifications]  WITH NOCHECK ADD  CONSTRAINT [sol_notifications$fk_pay_notifications_pay_channel_types1] FOREIGN KEY([communicationChannelID])
+REFERENCES [solturaDB].[sol_communicationChannels] ([communicationChannelID])
+GO
+ALTER TABLE [solturaDB].[sol_notifications] NOCHECK CONSTRAINT [sol_notifications$fk_pay_notifications_pay_channel_types1]
+GO
+ALTER TABLE [solturaDB].[sol_notifications]  WITH NOCHECK ADD  CONSTRAINT [sol_notifications$fk_pay_notifications_pay_notification_types1] FOREIGN KEY([notification_type_id])
+REFERENCES [solturaDB].[sol_notificationTypes] ([notificationTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_notifications] NOCHECK CONSTRAINT [sol_notifications$fk_pay_notifications_pay_notification_types1]
+GO
+ALTER TABLE [solturaDB].[sol_notifications]  WITH NOCHECK ADD  CONSTRAINT [sol_notifications$fk_pay_notifications_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_notifications] NOCHECK CONSTRAINT [sol_notifications$fk_pay_notifications_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_partner_addresses]  WITH NOCHECK ADD  CONSTRAINT [sol_partner_addresses$fk_sol_partners_addresses_sol_addresses1] FOREIGN KEY([addressid])
+REFERENCES [solturaDB].[sol_addresses] ([addressid])
+GO
+ALTER TABLE [solturaDB].[sol_partner_addresses] NOCHECK CONSTRAINT [sol_partner_addresses$fk_sol_partners_addresses_sol_addresses1]
+GO
+ALTER TABLE [solturaDB].[sol_partner_addresses]  WITH NOCHECK ADD  CONSTRAINT [sol_partner_addresses$fk_sol_partners_addresses_sol_partners1] FOREIGN KEY([partnerId])
+REFERENCES [solturaDB].[sol_partners] ([partnerId])
+GO
+ALTER TABLE [solturaDB].[sol_partner_addresses] NOCHECK CONSTRAINT [sol_partner_addresses$fk_sol_partners_addresses_sol_partners1]
+GO
+ALTER TABLE [solturaDB].[sol_partners]  WITH NOCHECK ADD  CONSTRAINT [sol_partners$fk_sol_partners_sol_enterprise_size1] FOREIGN KEY([enterpriseSizeId])
+REFERENCES [solturaDB].[sol_enterprise_size] ([enterpriseSizeId])
+GO
+ALTER TABLE [solturaDB].[sol_partners] NOCHECK CONSTRAINT [sol_partners$fk_sol_partners_sol_enterprise_size1]
+GO
+ALTER TABLE [solturaDB].[sol_partners]  WITH NOCHECK ADD  CONSTRAINT [sol_partners$fk_sol_partners_sol_partners_identifications_types1] FOREIGN KEY([identificationtypeId])
+REFERENCES [solturaDB].[sol_partners_identifications_types] ([identificationtypeId])
+GO
+ALTER TABLE [solturaDB].[sol_partners] NOCHECK CONSTRAINT [sol_partners$fk_sol_partners_sol_partners_identifications_types1]
+GO
+ALTER TABLE [solturaDB].[sol_payments]  WITH NOCHECK ADD  CONSTRAINT [sol_payments$fk_pay_payments_pay_available_pay_methods1] FOREIGN KEY([availableMethodID])
+REFERENCES [solturaDB].[sol_availablePayMethods] ([available_method_id])
+GO
+ALTER TABLE [solturaDB].[sol_payments] NOCHECK CONSTRAINT [sol_payments$fk_pay_payments_pay_available_pay_methods1]
+GO
+ALTER TABLE [solturaDB].[sol_payments]  WITH NOCHECK ADD  CONSTRAINT [sol_payments$fk_pay_payments_pay_currency1] FOREIGN KEY([currency_id])
+REFERENCES [solturaDB].[sol_currencies] ([currency_id])
+GO
+ALTER TABLE [solturaDB].[sol_payments] NOCHECK CONSTRAINT [sol_payments$fk_pay_payments_pay_currency1]
+GO
+ALTER TABLE [solturaDB].[sol_payments]  WITH NOCHECK ADD  CONSTRAINT [sol_payments$fk_pay_pays_pay_pay_method1] FOREIGN KEY([methodID])
+REFERENCES [solturaDB].[sol_payMethod] ([payMethodID])
+GO
+ALTER TABLE [solturaDB].[sol_payments] NOCHECK CONSTRAINT [sol_payments$fk_pay_pays_pay_pay_method1]
+GO
+ALTER TABLE [solturaDB].[sol_permissions]  WITH NOCHECK ADD  CONSTRAINT [sol_permissions$fk_pay_permissions_pay_modules1] FOREIGN KEY([moduleID])
+REFERENCES [solturaDB].[sol_modules] ([moduleID])
+GO
+ALTER TABLE [solturaDB].[sol_permissions] NOCHECK CONSTRAINT [sol_permissions$fk_pay_permissions_pay_modules1]
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures]  WITH NOCHECK ADD  CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_deals1] FOREIGN KEY([dealId])
+REFERENCES [solturaDB].[sol_deals] ([dealId])
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures] NOCHECK CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_deals1]
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures]  WITH NOCHECK ADD  CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_featureTypes1] FOREIGN KEY([featureTypeID])
+REFERENCES [solturaDB].[sol_featureTypes] ([featureTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures] NOCHECK CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_featureTypes1]
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures]  WITH NOCHECK ADD  CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_schedules1] FOREIGN KEY([scheduleID])
+REFERENCES [solturaDB].[sol_schedules] ([scheduleID])
+GO
+ALTER TABLE [solturaDB].[sol_planFeatures] NOCHECK CONSTRAINT [sol_planFeatures$fk_sol_planFeatures_sol_schedules1]
+GO
+ALTER TABLE [solturaDB].[sol_planPrices]  WITH NOCHECK ADD  CONSTRAINT [sol_planPrices$fk_sol_planPrices_sol_currencies1] FOREIGN KEY([currency_id])
+REFERENCES [solturaDB].[sol_currencies] ([currency_id])
+GO
+ALTER TABLE [solturaDB].[sol_planPrices] NOCHECK CONSTRAINT [sol_planPrices$fk_sol_planPrices_sol_currencies1]
+GO
+ALTER TABLE [solturaDB].[sol_planPrices]  WITH NOCHECK ADD  CONSTRAINT [sol_planPrices$fk_sol_planPrices_sol_plans1] FOREIGN KEY([planID])
+REFERENCES [solturaDB].[sol_plans] ([planID])
+GO
+ALTER TABLE [solturaDB].[sol_planPrices] NOCHECK CONSTRAINT [sol_planPrices$fk_sol_planPrices_sol_plans1]
+GO
+ALTER TABLE [solturaDB].[sol_plans]  WITH NOCHECK ADD  CONSTRAINT [sol_plans$fk_sol_plans_sol_planTypes1] FOREIGN KEY([planTypeID])
+REFERENCES [solturaDB].[sol_planTypes] ([planTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_plans] NOCHECK CONSTRAINT [sol_plans$fk_sol_plans_sol_planTypes1]
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions]  WITH NOCHECK ADD  CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_partner_addresses1] FOREIGN KEY([partnerAddressId])
+REFERENCES [solturaDB].[sol_partner_addresses] ([partnerAddressId])
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions] NOCHECK CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_partner_addresses1]
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions]  WITH NOCHECK ADD  CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_planTransactionTypes1] FOREIGN KEY([planTransactionTypeID])
+REFERENCES [solturaDB].[sol_planTransactionTypes] ([planTransactionTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions] NOCHECK CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_planTransactionTypes1]
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions]  WITH NOCHECK ADD  CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_userAssociateIdentifications1] FOREIGN KEY([associateID])
+REFERENCES [solturaDB].[sol_userAssociateIdentifications] ([associateID])
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions] NOCHECK CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_userAssociateIdentifications1]
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions]  WITH NOCHECK ADD  CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_planTransactions] NOCHECK CONSTRAINT [sol_planTransactions$fk_sol_planTransactions_sol_users1]
+GO
+ALTER TABLE [solturaDB].[sol_planTypes]  WITH NOCHECK ADD  CONSTRAINT [sol_planTypes$fk_sol_planTypes_sol_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_planTypes] NOCHECK CONSTRAINT [sol_planTypes$fk_sol_planTypes_sol_users1]
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions]  WITH NOCHECK ADD  CONSTRAINT [sol_rolePermissions$fk_pay_role_permissions_pay_permissions1] FOREIGN KEY([permissionID])
+REFERENCES [solturaDB].[sol_permissions] ([permissionID])
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions] NOCHECK CONSTRAINT [sol_rolePermissions$fk_pay_role_permissions_pay_permissions1]
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions]  WITH NOCHECK ADD  CONSTRAINT [sol_rolePermissions$fk_pay_role_permissions_pay_roles1] FOREIGN KEY([roleID])
+REFERENCES [solturaDB].[sol_roles] ([roleID])
+GO
+ALTER TABLE [solturaDB].[sol_rolePermissions] NOCHECK CONSTRAINT [sol_rolePermissions$fk_pay_role_permissions_pay_roles1]
+GO
+ALTER TABLE [solturaDB].[sol_schedulesDetails]  WITH NOCHECK ADD  CONSTRAINT [sol_schedulesDetails$fk_pay_schedules_details_pay_schedules1] FOREIGN KEY([schedule_id])
+REFERENCES [solturaDB].[sol_schedules] ([scheduleID])
+GO
+ALTER TABLE [solturaDB].[sol_schedulesDetails] NOCHECK CONSTRAINT [sol_schedulesDetails$fk_pay_schedules_details_pay_schedules1]
+GO
+ALTER TABLE [solturaDB].[sol_states]  WITH NOCHECK ADD  CONSTRAINT [sol_states$fk_pay_states_pay_countries1] FOREIGN KEY([countryID])
+REFERENCES [solturaDB].[sol_countries] ([countryID])
+GO
+ALTER TABLE [solturaDB].[sol_states] NOCHECK CONSTRAINT [sol_states$fk_pay_states_pay_countries1]
+GO
+ALTER TABLE [solturaDB].[sol_transactions]  WITH NOCHECK ADD  CONSTRAINT [sol_transactions$fk_pay_transactions_pay_pays1] FOREIGN KEY([payment_id])
+REFERENCES [solturaDB].[sol_payments] ([paymentID])
+GO
+ALTER TABLE [solturaDB].[sol_transactions] NOCHECK CONSTRAINT [sol_transactions$fk_pay_transactions_pay_pays1]
+GO
+ALTER TABLE [solturaDB].[sol_transactions]  WITH NOCHECK ADD  CONSTRAINT [sol_transactions$fk_pay_transactions_pay_transaction_subtypes1] FOREIGN KEY([transactionSubtypesID])
+REFERENCES [solturaDB].[sol_transactionSubtypes] ([transactionSubtypeID])
+GO
+ALTER TABLE [solturaDB].[sol_transactions] NOCHECK CONSTRAINT [sol_transactions$fk_pay_transactions_pay_transaction_subtypes1]
+GO
+ALTER TABLE [solturaDB].[sol_transactions]  WITH NOCHECK ADD  CONSTRAINT [sol_transactions$fk_pay_transactions_pay_transaction_types1] FOREIGN KEY([transactionTypesID])
+REFERENCES [solturaDB].[sol_transactionTypes] ([transactionTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_transactions] NOCHECK CONSTRAINT [sol_transactions$fk_pay_transactions_pay_transaction_types1]
+GO
+ALTER TABLE [solturaDB].[sol_transactions]  WITH NOCHECK ADD  CONSTRAINT [sol_transactions$fk_pay_transactions_pay_users1] FOREIGN KEY([user_id])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_transactions] NOCHECK CONSTRAINT [sol_transactions$fk_pay_transactions_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_transactions]  WITH NOCHECK ADD  CONSTRAINT [sol_transactions$fk_sol_transactions_sol_exchangeCurrencies1] FOREIGN KEY([exchangeCurrencyID])
+REFERENCES [solturaDB].[sol_exchangeCurrencies] ([exchangeCurrencyID])
+GO
+ALTER TABLE [solturaDB].[sol_transactions] NOCHECK CONSTRAINT [sol_transactions$fk_sol_transactions_sol_exchangeCurrencies1]
+GO
+ALTER TABLE [solturaDB].[sol_translations]  WITH NOCHECK ADD  CONSTRAINT [sol_translations$fk_pay_translations_pay_languages1] FOREIGN KEY([languageID])
+REFERENCES [solturaDB].[sol_languages] ([languageID])
+GO
+ALTER TABLE [solturaDB].[sol_translations] NOCHECK CONSTRAINT [sol_translations$fk_pay_translations_pay_languages1]
+GO
+ALTER TABLE [solturaDB].[sol_translations]  WITH NOCHECK ADD  CONSTRAINT [sol_translations$fk_pay_translations_pay_modules1] FOREIGN KEY([moduleID])
+REFERENCES [solturaDB].[sol_modules] ([moduleID])
+GO
+ALTER TABLE [solturaDB].[sol_translations] NOCHECK CONSTRAINT [sol_translations$fk_pay_translations_pay_modules1]
+GO
+ALTER TABLE [solturaDB].[sol_userAssociateIdentifications]  WITH NOCHECK ADD  CONSTRAINT [sol_userAssociateIdentifications$fk_sol_userAssociateIdentifications_sol_associateIdentificati1] FOREIGN KEY([identificationTypeID])
+REFERENCES [solturaDB].[sol_associateIdentificationTypes] ([identificationTypeID])
+GO
+ALTER TABLE [solturaDB].[sol_userAssociateIdentifications] NOCHECK CONSTRAINT [sol_userAssociateIdentifications$fk_sol_userAssociateIdentifications_sol_associateIdentificati1]
+GO
+ALTER TABLE [solturaDB].[sol_userAssociateIdentifications]  WITH NOCHECK ADD  CONSTRAINT [sol_userAssociateIdentifications$fk_sol_userAssociateIdentifications_sol_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_userAssociateIdentifications] NOCHECK CONSTRAINT [sol_userAssociateIdentifications$fk_sol_userAssociateIdentifications_sol_users1]
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions]  WITH NOCHECK ADD  CONSTRAINT [sol_userPermissions$fk_pay_role_permissions_pay_permissions10] FOREIGN KEY([permissionID])
+REFERENCES [solturaDB].[sol_permissions] ([permissionID])
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions] NOCHECK CONSTRAINT [sol_userPermissions$fk_pay_role_permissions_pay_permissions10]
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions]  WITH NOCHECK ADD  CONSTRAINT [sol_userPermissions$fk_pay_user_permissions_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_userPermissions] NOCHECK CONSTRAINT [sol_userPermissions$fk_pay_user_permissions_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_userPlans]  WITH NOCHECK ADD  CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_pay_schedules1] FOREIGN KEY([scheduleID])
+REFERENCES [solturaDB].[sol_schedules] ([scheduleID])
+GO
+ALTER TABLE [solturaDB].[sol_userPlans] NOCHECK CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_pay_schedules1]
+GO
+ALTER TABLE [solturaDB].[sol_userPlans]  WITH NOCHECK ADD  CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_planPrices1] FOREIGN KEY([planPriceID])
+REFERENCES [solturaDB].[sol_planPrices] ([planPriceID])
+GO
+ALTER TABLE [solturaDB].[sol_userPlans] NOCHECK CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_planPrices1]
+GO
+ALTER TABLE [solturaDB].[sol_userPlans]  WITH NOCHECK ADD  CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_userPlans] NOCHECK CONSTRAINT [sol_userPlans$fk_sol_userPlans_sol_users1]
+GO
+ALTER TABLE [solturaDB].[sol_userRoles]  WITH NOCHECK ADD  CONSTRAINT [sol_userRoles$fk_pay_users_has_pay_roles_pay_roles1] FOREIGN KEY([role_id])
+REFERENCES [solturaDB].[sol_roles] ([roleID])
+GO
+ALTER TABLE [solturaDB].[sol_userRoles] NOCHECK CONSTRAINT [sol_userRoles$fk_pay_users_has_pay_roles_pay_roles1]
+GO
+ALTER TABLE [solturaDB].[sol_userRoles]  WITH NOCHECK ADD  CONSTRAINT [sol_userRoles$fk_pay_users_has_pay_roles_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_userRoles] NOCHECK CONSTRAINT [sol_userRoles$fk_pay_users_has_pay_roles_pay_users1]
+GO
+ALTER TABLE [solturaDB].[sol_usersAdresses]  WITH NOCHECK ADD  CONSTRAINT [sol_usersAdresses$fk_pay_users_adresses_pay_addresses1] FOREIGN KEY([addressID])
+REFERENCES [solturaDB].[sol_addresses] ([addressid])
+GO
+ALTER TABLE [solturaDB].[sol_usersAdresses] NOCHECK CONSTRAINT [sol_usersAdresses$fk_pay_users_adresses_pay_addresses1]
+GO
+ALTER TABLE [solturaDB].[sol_usersAdresses]  WITH NOCHECK ADD  CONSTRAINT [sol_usersAdresses$fk_pay_users_adresses_pay_users1] FOREIGN KEY([userID])
+REFERENCES [solturaDB].[sol_users] ([userID])
+GO
+ALTER TABLE [solturaDB].[sol_usersAdresses] NOCHECK CONSTRAINT [sol_usersAdresses$fk_pay_users_adresses_pay_users1]
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_addresses' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_addresses'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_associateIdentificationTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_associateIdentificationTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_associatePlans' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_associatePlans'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_availablePayMethods' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_availablePayMethods'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_balances' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_balances'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_city' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_city'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_communicationChannels' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_communicationChannels'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_contact_departments' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_contact_departments'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_contact_info' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_contact_info'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_contactType' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_contactType'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_countries' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_countries'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_currencies' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_currencies'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_deals' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_deals'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_enterprise_size' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_enterprise_size'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_exchangeCurrencies' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_exchangeCurrencies'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_featureAvailableLocations' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_featureAvailableLocations'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_featurePrices' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_featurePrices'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_featuresPerPlans' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_featuresPerPlans'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_featureTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_featureTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_languages' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_languages'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_logs' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_logs'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_logSources' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_logSources'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_logsSererity' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_logsSererity'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_logTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_logTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_mediaFile' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_mediaFile'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_mediaTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_mediaTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_modules' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_modules'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_notificationConfigurations' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_notificationConfigurations'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_notifications' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_notifications'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_notificationTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_notificationTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_partner_addresses' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_partner_addresses'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_partners' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_partners'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_partners_identifications_types' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_partners_identifications_types'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_payments' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_payments'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_payMethod' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_payMethod'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_permissions' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_permissions'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_planFeatures' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_planFeatures'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_planPrices' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_planPrices'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_plans' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_plans'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_planTransactions' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_planTransactions'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_planTransactionTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_planTransactionTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_planTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_planTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_rolePermissions' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_rolePermissions'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_roles' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_roles'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_schedules' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_schedules'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_schedulesDetails' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_schedulesDetails'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_states' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_states'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_transactions' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_transactions'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_transactionSubtypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_transactionSubtypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_transactionTypes' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_transactionTypes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_translations' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_translations'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_userAssociateIdentifications' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_userAssociateIdentifications'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_userPermissions' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_userPermissions'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_userPlans' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_userPlans'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_userRoles' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_userRoles'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_users' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_users'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_SSMA_SOURCE', @value=N'solturaDB.sol_usersAdresses' , @level0type=N'SCHEMA',@level0name=N'solturaDB', @level1type=N'TABLE',@level1name=N'sol_usersAdresses'
+GO
+```
 ---
 # Test de la base de datos
 ## Población de datos
@@ -1536,14 +3615,114 @@ GRANT CONNECT TO usuario;
 
 Conceder solo permisos de SELECT sobre una tabla a un usuario específico. Será posible crear roles y que existan roles que si puedan hacer ese select sobre esa tabla y otros Roles que no puedan? Demuestrelo con usuarios y roles pertinentes.
 
-```
+```sql
+
+-- 2. PERMISOS SELECT Y ROLES PERSONALIZADOS
+
+-- Quitar permisos por defecto para hacer SELECT en sol_payments
+REVOKE SELECT ON solturaDB.sol_payments TO PUBLIC;
+
+-- Otorgar solo a manager
+GRANT SELECT ON solturaDB.sol_payments TO manager;
+
+
+-- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECÍFICO
+-- Ejemplo con la tabla de pagos, que contiene la información de los pagos realizados
+-- usuario no podrá acceder
+EXECUTE AS USER = 'usuario';
+SELECT * FROM solturaDB.sol_payments; -- Error
+REVERT;
+
+-- empleado no podrá acceder
+EXECUTE AS USER = 'empleado';
+SELECT * FROM solturaDB.sol_payments; -- Error
+REVERT;
+
+-- manager sí podrá
+EXECUTE AS USER = 'manager';
+SELECT * FROM solturaDB.sol_payments; -- OK
+REVERT;
+
+
+
+
+-- ROLES PERSONALIZADOS
+-- Crear dos roles
+USE solturaDB;
+CREATE ROLE AccesoRestringido;
+CREATE ROLE SoloLectura;
+
+-- Conceder permiso SELECT al rol SoloLectura
+ALTER ROLE AccesoRestringido ADD MEMBER usuario;
+ALTER ROLE SoloLectura ADD MEMBER empleado;
+
+DENY SELECT ON solturaDB.sol_payments TO AccesoRestringido;
+GRANT SELECT ON solturaDB.sol_payments TO SoloLectura;
+
+
+-- PRUEBAS DE PERMISO DE SELECT A UN USUARIO ESPECÍFICO
+
+-- usuario en rol AccesoRestringido
+EXECUTE AS USER = 'usuario';
+SELECT * FROM solturaDB.sol_payments; -- Denegado
+REVERT;
+
+-- empleado en rol SoloLectura (antes tenía restringido el acceso a la tabla, pero ahora accede por el rol)
+EXECUTE AS USER = 'empleado';
+SELECT * FROM solturaDB.sol_payments; -- OK
+REVERT;
 
 ```
 
 Permitir ejecución de ciertos SPs y denegar acceso directo a las tablas que ese SP utiliza, será que aunque tengo las tablas restringidas, puedo ejecutar el SP?
 
-```
+```sql
+-- 3. PERMISOS SOBRE STORED PROCEDURES
 
+-- Denegar acceso a las tablas
+DENY SELECT ON solturaDB.sol_deals TO usuario;
+DENY SELECT ON solturaDB.sol_partners TO usuario;
+
+
+-- Crear SP 
+CREATE PROCEDURE [solturaDB].[SP_verDealsdePartners]
+WITH EXECUTE AS OWNER
+AS
+BEGIN
+	SET NOCOUNT ON
+
+    SELECT p.name AS "Partner", d.dealDescription, d.sealDate, d.endDate, d.discount, d.solturaComission, d.isActive
+	FROM sol_deals d
+	INNER JOIN sol_partners p ON d.partnerId = p.partnerId 
+END;
+
+-- PRUEBAS DE EJECUCIÓN
+
+-- el usuario no puede utilizar el SP si no se le da permiso explícitamete
+-- Actuar como el usuario sin permiso
+EXECUTE AS USER = 'usuario';
+
+-- Probar acceso directo a las tablas (esperado: error)
+SELECT * FROM solturaDB.sol_deals;       
+SELECT * FROM solturaDB.sol_partners;   
+-- Probar ejecución del SP 
+EXEC solturaDB.SP_verDealsdePartners;        -- Error: no tiene permiso
+
+REVERT;
+
+-- Con el permiso, ya debe poder ejecutarlo
+GRANT EXECUTE ON solturaDB.SP_verDealsdePartners TO AccesoRestringido;
+
+-- Actuar como el usuario nuevamente
+EXECUTE AS USER = 'usuario';
+
+-- Probar SP otra vez (esperado: funciona)
+EXEC solturaDB.SP_verDealsdePartners;      
+-- Probar acceso directo (sigue sin funcionar)
+SELECT * FROM solturaDB.sol_deals;       
+SELECT * FROM solturaDB.sol_partners;    
+
+REVERT;
 ```
 
 RLS - row level security
@@ -1593,21 +3772,13 @@ EXECUTE AS USER = 'usuario';
 EXEC sp_set_session_context @key = N'user_id', @value = NULL;
 SELECT * FROM solturaDB.sol_availablePayMethods;  -- No mostrará resultados
 REVERT;
-```
 
-
-
-```sql
 -- Usuario con session_context: solo puede ver sus filas
 EXECUTE AS USER = 'usuario';
 EXEC sp_set_session_context @key = N'user_id', @value = 5;  -- Asignamos un user_id específico
 SELECT * FROM solturaDB.sol_availablePayMethods;  -- Solo verá las filas con user_id = 5
 REVERT;
-```
 
-
-
-```sql
 -- Usuario admin: debe ver todas las filas
 EXECUTE AS USER = 'admin';
 EXEC sp_set_session_context @key = N'user_id', @value = NULL;
@@ -1957,11 +4128,161 @@ ORDER BY mesesActivo DESC;
 ```
 
 4. 
+Imagine una cosulta que el sistema va a necesitar para mostrar cierta información, o reporte o pantalla, y que esa consulta vaya a requerir:
+4 JOINs entre tablas.
+2 funciones agregadas (ej. SUM, AVG).
+3 subconsultas or 3 CTEs
+Un CASE, CONVERT, ORDER BY, HAVING, una función escalar, y operadores como IN, NOT IN, EXISTS.
+Escriba dicha consulta y ejecutela con el query analizer, utilizando el analizador de pesos y costos del plan de ejecución, reacomode la consulta para que sea más eficiente sin necesidad de agregar nuevos índices.
+    
+Solución Optimizada:
 ```sql
+USE solturaDB;
+GO
+
+;WITH ValidPayments AS (
+    SELECT p.paymentID, p.amount, t.user_id
+    FROM SolturaDB.sol_payments p
+    INNER JOIN SolturaDB.sol_transactions t ON p.paymentID = t.payment_id
+    WHERE p.confirmed = 1
+),
+UserTotalPayments AS (
+    SELECT user_id, SUM(amount) AS total_paid
+    FROM ValidPayments
+    GROUP BY user_id
+),
+ActivePlans AS (
+    SELECT userID, planPriceID
+    FROM SolturaDB.sol_userPlans
+    WHERE adquisition > '2024-01-01'
+),
+PlanAmounts AS (
+    SELECT planPriceID, amount
+    FROM SolturaDB.sol_planPrices
+),
+HighSpenders AS (
+    SELECT user_id
+    FROM UserTotalPayments
+    WHERE total_paid > 150000
+)
+SELECT 
+    u.userID,
+    u.firstName + ' ' + u.lastName AS fullName,
+    COUNT(DISTINCT ap.planPriceID) AS totalPlans,
+    AVG(CAST(pa.amount AS FLOAT)) AS avgPlanAmount,
+    ISNULL(ut.total_paid, 0) AS totalPayments,
+    CASE 
+        WHEN ut.total_paid > 250000 THEN 'VIP'
+        WHEN ut.total_paid > 100000 THEN 'Premium'
+        ELSE 'Standard'
+    END AS userTier,
+    CASE 
+        WHEN hs.user_id IS NOT NULL THEN 1 ELSE 0
+    END AS isHighSpender
+FROM SolturaDB.sol_users u
+LEFT JOIN ActivePlans ap ON u.userID = ap.userID
+LEFT JOIN PlanAmounts pa ON ap.planPriceID = pa.planPriceID
+LEFT JOIN UserTotalPayments ut ON u.userID = ut.user_id
+LEFT JOIN HighSpenders hs ON u.userID = hs.user_id
+WHERE u.email NOT IN ('test@example.com', 'spam@example.com')
+GROUP BY u.userID, u.firstName, u.lastName, ut.total_paid, hs.user_id
+ORDER BY totalPayments DESC;
+
+```
+Solución Sin Optimizar:
+```sql
+
+WITH ActivePlans AS (
+    SELECT userID, planPriceID
+    FROM solturaDB.sol_userPlans
+    WHERE adquisition > '2024-01-01'
+),
+UserTotalPayments AS (
+    SELECT user_id, SUM(amount) AS total_paid
+    FROM solturaDB.sol_transactions
+    GROUP BY user_id
+),
+HighSpenders AS (
+    SELECT user_id
+    FROM solturaDB.sol_transactions
+    GROUP BY user_id
+    HAVING SUM(amount) > 150000
+)
+SELECT 
+    u.userID,
+    u.firstName + ' ' + u.lastName AS fullName,
+    COUNT(DISTINCT up.planPriceID) AS totalPlans,
+    AVG(CAST(pp.amount AS FLOAT)) AS avgPlanAmount,
+    SUM(p.amount) AS totalPayments,
+    CASE 
+        WHEN ut.total_paid > 250000 THEN 'VIP'
+        WHEN ut.total_paid > 100000 THEN 'Premium'
+        ELSE 'Standard'
+    END AS userTier,
+    CASE 
+        WHEN EXISTS (
+            SELECT 1 
+            FROM HighSpenders hs 
+            WHERE hs.user_id = u.userID
+        ) THEN 1
+        ELSE 0
+    END AS isHighSpender
+FROM solturaDB.sol_users u
+JOIN solturaDB.sol_userPlans up ON u.userID = up.userID
+JOIN solturaDB.sol_planPrices pp ON up.planPriceID = pp.planPriceID
+JOIN solturaDB.sol_transactions t ON u.userID = t.user_id
+JOIN solturaDB.sol_payments p ON t.payment_id = p.paymentID
+LEFT JOIN UserTotalPayments ut ON u.userID = ut.user_id
+WHERE p.confirmed = 1 
+  AND u.email NOT IN ('test@example.com', 'spam@example.com')
+GROUP BY u.userID, u.firstName, u.lastName, ut.total_paid
+ORDER BY totalPayments DESC;
+
 ```
 
 5. 
+Crear una consulta con al menos 3 JOINs que analice información donde podría ser importante obtener un SET DIFFERENCE y un INTERSECTION
 ```sql
+USE solturaDB;
+GO
+
+-- Usuarios con planes activos
+WITH UsersWithPlans AS (
+    SELECT DISTINCT u.userID
+    FROM SolturaDB.sol_users u
+    JOIN SolturaDB.sol_userPlans up ON u.userID = up.userID
+    JOIN SolturaDB.sol_planPrices pp ON up.planPriceID = pp.planPriceID
+    WHERE up.enabled = 1
+),
+
+-- Usuarios con pagos v�lidos 
+UsersWithPayments AS (
+    SELECT DISTINCT t.user_id
+    FROM SolturaDB.sol_transactions t
+    JOIN SolturaDB.sol_payments p ON t.payment_id = p.paymentID
+    WHERE p.confirmed = 1
+)
+
+-- Usuarios que tienen plan Y han hecho pagos v�lidos
+SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan y pago v�lido' AS estado
+FROM SolturaDB.sol_users u
+WHERE u.userID IN (
+    SELECT userID FROM UsersWithPlans
+    INTERSECT
+    SELECT user_id FROM UsersWithPayments
+)
+
+UNION ALL
+
+--Usuarios que tienen plan PERO NO han hecho pagos v�lidos
+SELECT u.userID, u.firstName + ' ' + u.lastName AS fullName, 'Plan sin pago v�lido' AS estado
+FROM SolturaDB.sol_users u
+WHERE u.userID IN (
+    SELECT userID FROM UsersWithPlans
+    EXCEPT
+    SELECT user_id FROM UsersWithPayments
+)
+ORDER BY estado, fullName;
 ```
 
 6. 
@@ -2410,8 +4731,53 @@ GO
 ```
 
 9. 
+Crear un SELECT que genere un archivo CSV de datos basado en un JOIN entre dos tablas
+
 ```sql
+Use solturaDB
+-- Primero, esta es la consulta con JOIN
+SELECT 
+    u.userID, 
+    u.firstName + ' ' + u.lastName AS fullName,
+    u.email, 
+    up.adquisition, 
+    up.enabled
+FROM solturaDB.sol_users u
+JOIN solturaDB.sol_userPlans up ON u.userID = up.userID;
 ```
+Resultados CSV
+|1  |nuevoNombre Sistema|admin@soltura.com           |2023-01-01|0x01|
+|---|-------------------|----------------------------|----------|----|
+|2  |Nombre2 Pérez      |juan.perez@example.com      |2023-02-15|0x01|
+|3  |María Gómez        |maria.gomez@example.com     |2023-03-10|0x01|
+|4  |Carlos Rodríguez   |carlos.rodriguez@example.com|2023-04-20|0x01|
+|5  |Ana Martínez       |ana.martinez@example.com    |2023-05-05|0x01|
+|6  |Luis Hernández     |luis.hdez@example.com       |2023-01-15|0x01|
+|7  |Sofía Castro       |sofia.castro@example.com    |2023-02-20|0x01|
+|8  |Pedro Mendoza      |pedro.mendoza@example.com   |2023-03-25|0x01|
+|9  |Laura Gutiérrez    |laura.gutierrez@example.com |2023-04-10|0x01|
+|10 |Diego Ramírez      |diego.ramirez@example.com   |2023-05-15|0x01|
+|11 |Elena Sánchez      |elena.sanchez@example.com   |2023-01-20|0x01|
+|12 |Javier López       |javier.lopez@example.com    |2023-02-25|0x01|
+|13 |Isabel García      |isabel.garcia@example.com   |2023-03-30|0x01|
+|14 |Miguel Torres      |miguel.torres@example.com   |2023-04-05|0x01|
+|15 |Carmen Ortiz       |carmen.ortiz@example.com    |2023-05-10|0x01|
+|16 |Raúl Morales       |raul.morales@example.com    |2023-01-25|0x01|
+|17 |Patricia Vargas    |patricia.vargas@example.com |2023-02-28|0x01|
+|18 |Oscar Díaz         |oscar.diaz@example.com      |2023-03-05|0x01|
+|19 |Adriana Ruiz       |adriana.ruiz@example.com    |2023-04-15|0x01|
+|20 |Fernando Molina    |fernando.molina@example.com |2023-05-20|0x01|
+|21 |Gabriela Silva     |gabriela.silva@example.com  |2023-01-30|0x01|
+|22 |Arturo Cruz        |arturo.cruz@example.com     |2023-02-05|0x01|
+|23 |Claudia Reyes      |claudia.reyes@example.com   |2023-03-15|0x01|
+|24 |Manuel Aguilar     |manuel.aguilar@example.com  |2023-04-25|0x01|
+|25 |Diana Flores       |diana.flores@example.com    |2023-05-30|0x01|
+|26 |Roberto Campos     |roberto.campos@example.com  |2023-06-01|0x01|
+|27 |Silvia Méndez      |silvia.mendez@example.com   |2023-06-05|0x01|
+|28 |Eduardo Guerra     |eduardo.guerra@example.com  |2023-06-10|0x01|
+|29 |Lucía Sosa         |lucia.sosa@example.com      |2023-06-15|0x01|
+|30 |Hugo Ríos          |hugo.rios@example.com       |2023-06-20|0x01|
+
 
 10. 
 Configurar una tabla de bitácora en otro servidor SQL Server accesible vía Linked Servers con impersonación segura desde los SP del sistema. Ahora haga un SP genérico para que cualquier SP en el servidor principal, pueda dejar bitácora en la nueva tabla que se hizo en el Linked Server.
@@ -2526,11 +4892,5512 @@ EXEC sp_RegistrarEventoBitacora
 SELECT * FROM master.dbo.RegistroBitacora;
 GO
 ```
-
-
-
 ---
 ## Concurrencia
 
----
+
+Cree una situación de deadlocks entre dos transacciones que podrían llegar a darse en el sistema en el momento de hacer un canje de un servicio donde el deadlock se de entre un SELECT y UPDATE en distintas tablas.
+
+
+
+Transacción A
+```
+BEGIN TRANSACTION;
+
+-- Simular un SELECT en la primera tabla
+SELECT * FROM solturaDB.sol_countries
+WHERE name = 'Costa Rica Actualizado';
+
+-- Esperar para simular alta concurrencia
+WAITFOR DELAY '00:00:10';
+
+-- Intentar actualizar la segunda tabla
+UPDATE solturaDB.sol_states
+SET name = 'San José '
+WHERE name = 'San José Actualizado';
+
+COMMIT;
+```
+
+Transacción B
+```
+BEGIN TRANSACTION;
+
+-- Simular un SELECT en la segunda tabla
+SELECT * FROM solturaDB.sol_states
+WHERE name = 'San José';
+
+-- Esperar para simular alta concurrencia
+WAITFOR DELAY '00:00:10';
+
+-- Intentar actualizar la primera tabla
+UPDATE solturaDB.sol_countries
+SET name = 'Costa Rica '
+WHERE name = 'Costa Rica Actualizado';
+
+COMMIT;
+```
+
+Determinar si es posible que suceden deadlocks en cascada, donde A bloquea B, B bloquea C, y C bloquea A, debe poder observar el deadlock en algún monitor.
+
+
+Lo que pasa es que una de estas se sacrifica por el deadlock
+
+Transacción 1
+```
+BEGIN TRANSACTION;
+UPDATE solturaDB.sol_users SET firstName = 'nuevoNombre' WHERE userID = 1;
+WAITFOR DELAY '00:00:03';
+UPDATE solturaDB.sol_payments SET amount = amount + 100 WHERE paymentID = 1;
+WAITFOR DELAY '00:00:03';
+SELECT * FROM solturaDB.sol_balances WHERE userID = 1;
+COMMIT TRANSACTION; 
+```
+
+
+
+Transacción 2
+```
+BEGIN TRANSACTION;
+UPDATE solturaDB.sol_payments SET amount = amount + 200 WHERE paymentID = 2;
+WAITFOR DELAY '00:00:03';
+UPDATE solturaDB.sol_balances SET amount = amount + 300 WHERE balanceID = 1;
+WAITFOR DELAY '00:00:03';
+SELECT * FROM solturaDB.sol_users WHERE userID = 1;
+COMMIT TRANSACTION;
+```
+
+Transacción 3
+```
+BEGIN TRANSACTION;
+UPDATE solturaDB.sol_balances SET amount = amount + 400 WHERE balanceID = 2;
+WAITFOR DELAY '00:00:03';
+SELECT * FROM solturaDB.sol_payments WHERE paymentID = 3;
+WAITFOR DELAY '00:00:03';
+UPDATE solturaDB.sol_users SET firstName = 'Nombre2' WHERE userID = 2;
+COMMIT TRANSACTION;
+```
+
+
+Determinar como deben usarse los niveles de isolacion: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE, mostrando los problemas posibles al usar cada tipo de isolación en casos particulares, se recomienda analizar casos como: obtener un reporte general histórico de alguna operación, calcular el tipo de cambio a utiliza en un momento dado, adquisición de planes cuando se están actualizando, cambios de precio durante subscripciones, agotamiento de existencias de algún beneficio.
+
+
+UNCOMMITTED
+
+
+1
+```
+USE solturaDB;
+GO
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+
+SELECT exchangeCurrencyID, exchange_rate
+FROM solturaDB.sol_exchangeCurrencies
+WHERE sourceID = 1 AND destinyID = 2;
+
+
+WAITFOR DELAY '00:00:05';  -- Espera a que Sesión B actualice y NO haga COMMIT
+
+-- podría ver el valor nuevo aunque Sesión B no haya hecho COMMIT
+SELECT exchangeCurrencyID, exchange_rate
+FROM solturaDB.sol_exchangeCurrencies
+WHERE sourceID = 1 AND destinyID = 2;
+
+COMMIT;
+```
+
+
+2
+```
+
+USE solturaDB;
+GO
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
+BEGIN TRANSACTION;
+
+-- Actualiza la tasa de cambio
+UPDATE solturaDB.sol_exchangeCurrencies
+SET exchange_rate = 0.0020
+WHERE sourceID = 1 AND destinyID = 2;
+
+WAITFOR DELAY '00:00:10';  -- dura más que la espera de Sesión A
+
+ROLLBACK; 
+```
+
+COMMITED
+
+
+1
+```
+USE solturaDB;
+GO
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+
+-- Primera lectura del conteo de pagos
+SELECT COUNT(*) AS total_pagos
+FROM SolturaDB.sol_payments;
+-- Supón que devuelve 100
+
+WAITFOR DELAY '00:00:05';  -- durante este tiempo Sesión B inserta nuevos pagos y COMMIT
+
+-- Segunda lectura del mismo conteo
+SELECT COUNT(*) AS total_pagos
+FROM SolturaDB.sol_payments;
+
+
+COMMIT;
+```
+
+
+2
+```
+USE solturaDB;
+GO
+
+-- Espera 2s para que Sesión A ejecute la primera lectura
+WAITFOR DELAY '00:00:02';
+
+BEGIN TRANSACTION;
+
+INSERT INTO SolturaDB.sol_payments (
+    availableMethodID,
+    currency_id,
+    amount,
+    date_pay,
+    confirmed,
+    result,
+    auth,
+    reference,
+    charge_token,
+    description,
+    checksum,
+    methodID
+)
+VALUES
+    (1,                     -- availableMethodID
+     1,                     -- currency_id
+     50.00,                 -- amount
+     GETDATE(),             -- date_pay
+     1,                     -- confirmed
+     'Aprobado',            -- result
+     'AUTH_B1',             -- auth
+     'REF_B1',              -- reference
+     CAST('tokentest1' AS VARBINARY(255)),  -- charge_token
+     'Prueba B1',           -- description
+     HASHBYTES('SHA2_256','PruebaB1'),      -- checksum
+     1),                    -- methodID
+
+    (1,                     -- availableMethodID
+     1,                     -- currency_id
+     75.00,                 -- amount
+     GETDATE(),             -- date_pay
+     1,                     -- confirmed
+     'Aprobado',            -- result
+     'AUTH_B2',             -- auth
+     'REF_B2',              -- reference
+     CAST('tokentest2' AS VARBINARY(255)),  -- charge_token
+     'Prueba B2',           -- description
+     HASHBYTES('SHA2_256','PruebaB2'),      -- checksum
+     1);                    -- methodID
+
+COMMIT;
+```
+
+REPETEABLE
+
+
+1
+```
+USE solturaDB;
+GO
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRAN;
+
+SELECT SUM(amount) AS total_consumos
+  FROM SolturaDB.sol_transactions
+  WHERE user_id = 5;               
+
+WAITFOR DELAY '00:00:05';         
+
+SELECT SUM(amount) AS total_consumos
+  FROM SolturaDB.sol_transactions
+  WHERE user_id = 5;             
+
+COMMIT;
+```
+
+2
+```
+USE solturaDB;
+GO
+
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+GO
+
+
+WAITFOR DELAY '00:00:02';
+GO
+
+BEGIN TRANSACTION;
+
+INSERT INTO SolturaDB.sol_transactions
+  (payment_id, date, postTime, refNumber, user_id, checksum, exchangeRate, convertedAmount, transactionTypesID, transactionSubtypesID, amount, exchangeCurrencyID)
+VALUES
+  (1, GETDATE(), GETDATE(), 'INV-100', 5, CAST('tokentest3' AS VARBINARY(255)), 1.0, 100.00, 1, 1, 100.00, 1),
+  (1, GETDATE(), GETDATE(), 'INV-101', 5, CAST('tokentest4' AS VARBINARY(255)), 1.0,  50.00, 1, 1,  50.00, 1);
+
+COMMIT;
+GO
+```
+
+
+SERIALIZABLE
+
+1
+```
+USE solturaDB;
+GO
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRAN;
+
+SELECT planPriceID, amount
+  FROM solturaDB.sol_planPrices
+  WHERE planID = 3;              
+
+WAITFOR DELAY '00:00:10';        
+
+SELECT planPriceID, amount
+  FROM solturaDB.sol_planPrices
+  WHERE planID = 3;             
+
+COMMIT;
+```
+
+
+1
+```
+USE solturaDB;
+GO
+
+
+WAITFOR DELAY '00:00:02';
+
+BEGIN TRAN;
+UPDATE solturaDB.sol_planPrices
+   SET amount = amount * 1.10
+ WHERE planID = 3;               
+COMMIT;
+```
+
+
+
+Crear un cursor de update que bloquee los registros que recorre uno a uno, demuestre en que casos dicho cursor los bloquea y en que casos no, para que el equipo de desarrollo sepa para que escenarios usar cursos y cuando no.
+
+
+Los cursores sirven para ejecuciones de fila a fila no de alta concurrencia
+
+
+CURSOR
+```
+DECLARE payment_cursor CURSOR FOR
+SELECT paymentID
+FROM solturaDB.sol_payments
+WHERE confirmed = 1
+ORDER BY paymentID;
+
+DECLARE @paymentID INT;
+
+OPEN payment_cursor;
+
+FETCH NEXT FROM payment_cursor INTO @paymentID;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Bloquea el registro mientras est  dentro de la transacci n
+    UPDATE solturaDB.sol_payments
+    SET description = CONCAT(description, ' (Verificado)')
+    WHERE paymentID = @paymentID;
+
+    -- Simula procesamiento lento
+    WAITFOR DELAY '00:00:05';
+
+    FETCH NEXT FROM payment_cursor INTO @paymentID;
+END
+
+CLOSE payment_cursor;
+DEALLOCATE payment_cursor;
+```
+
+Update que provoca un bloquea
+
+```
+USE solturaDB;
+UPDATE solturaDB.sol_payments
+SET result = 'Forzado'
+WHERE paymentID = 3;
+SELECT * FROM solturaDB.sol_payments
+```
+
+
+Defina lo que es la "transacción de volumen" de su base de datos, por ejemplo, en uber la transacción es buscar un driver, en paypal es procesar un pago, en amazon es buscar artículos, y así sucesivamente, es la operación que más solicitudes recibe el sistema, dicho esto:
+
+La transacción de volumen sería payments.
+Determine cuántas transacciones por segundo máximo es capaz de procesar su base de datos, valide el método con el profesor
+61 por segundo con 100 hilos
+
+Determine como podría triplicar el valor averiguado anteriormente sin hacer cambios en su base de datos ni incrementar hardware ni modificando el query
+
+
+## Resultados
 # Adquisiones en Costa Rica y Migración de datos
+
+El archivo de migración es MigrationSetup.ipynb
+
+# Migración de datos de MySql a SQL Server
+
+### Primero hay que hacer las conexiones a las bases de datos
+
+
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+import pyodbc
+from shapely import wkb
+
+mySqlConn = None
+tSqlConn = None
+
+def connectToDatabases():
+    global mySqlConn, tSqlConn
+    try:
+        
+        # Conectarse a MySQL
+        mySqlConn = create_engine("mysql+mysqlconnector://root:123456@localhost/pay_assistant_db")
+
+        # Conectarse a SQL Server con pyodbc
+        tSqlConn = pyodbc.connect(
+            'DRIVER={ODBC Driver 17 for SQL Server};'
+            'SERVER=localhost;'
+            'DATABASE=solturaDB;'
+            'Trusted_Connection=yes;'
+        )
+
+        
+        print("Éxito al conectarse!")
+
+
+        # Conectarse a SQL Server
+        # TODO
+    
+    except Exception as e:
+        print (f"Error: {e}")
+```
+
+
+```python
+connectToDatabases()
+```
+
+    Éxito al conectarse!
+    
+
+### Una vez hechas las conexiones, se va a extraer todos los datos de mysql a migrar
+
+
+```python
+# Instanciar las variables globales de las tablas con los datos a migrar
+df_users = None
+df_currencies = None
+df_subscriptions = None
+df_planPrices = None
+df_planFeaturesSubscriptions = None
+df_planFeatures = None
+df_schedules = None
+df_scheduleDetails = None
+df_userPlanPrices = None
+df_countries = None
+df_states = None
+df_cities = None
+df_addresses = None
+df_userAddresses = None
+```
+
+
+```python
+# Esta función hace todos los queries de las tablas y los guarda en DataFrames
+def extractAllData():
+    global df_users, df_currencies, df_subscriptions, df_planPrices,df_planFeatures, df_planFeaturesSubscriptions, df_schedules, df_scheduleDetails, df_userPlanPrices, df_countries
+    global df_cities, df_states, df_addresses, df_userAddresses
+    df_users = pd.read_sql("SELECT * FROM pay_users;",mySqlConn)
+    df_currencies = pd.read_sql("SELECT * FROM pay_currencies;",mySqlConn)
+    df_subscriptions = pd.read_sql("SELECT * FROM pay_subscriptions;",mySqlConn)
+    df_planPrices = pd.read_sql("SELECT * FROM pay_plan_prices;",mySqlConn)
+    df_planFeaturesSubscriptions = pd.read_sql("SELECT * FROM pay_plan_features_subscriptions;",mySqlConn)
+    df_planFeatures = pd.read_sql("SELECT * FROM pay_plan_features;",mySqlConn)
+    df_schedules = pd.read_sql("SELECT * FROM pay_schedules;",mySqlConn)
+    df_scheduleDetails = pd.read_sql("SELECT * FROM pay_schedules_details;",mySqlConn)
+    df_userPlanPrices = pd.read_sql("SELECT * FROM pay_users_plan_prices;",mySqlConn)
+    df_countries = pd.read_sql("SELECT * FROM pay_countries;",mySqlConn)
+    df_states = pd.read_sql("SELECT * FROM pay_states;",mySqlConn)
+    df_cities = pd.read_sql("SELECT * FROM pay_city;",mySqlConn)
+    df_addresses = pd.read_sql("SELECT * FROM pay_addresses;",mySqlConn)
+    df_userAddresses = pd.read_sql("SELECT * FROM pay_users_adresses;",mySqlConn)
+```
+
+
+```python
+# Ahora se llama la función para meter todos los datos en los dataFrame
+extractAllData()
+```
+
+
+```python
+# Esta función lo que hace es preparar el geoposition para insertarlo en SQL Server
+def parse_mysql_point(blob):
+    if pd.isna(blob):
+        return None
+    try:
+        return wkb.loads(blob[4:]).wkt  # saltar primeros 4 bytes (SRID)
+    except Exception as e:
+        print("Error con blob:", blob)
+        return None
+
+df_addresses['geoposition'] = df_addresses['geoposition'].apply(parse_mysql_point)
+```
+
+# Tablas a migrar
+
+Tablas de usuarios:
+- users
+- userAddresses
+
+Tablas de países:
+- countries
+- states
+- cities
+
+Tablas de direcciones:
+- addresses
+
+Tablas de schedules:
+- schedules
+- scheduleDetails
+
+# Tablas a adaptar
+Todo lo que involucra los planes, sus features y precios
+
+### En esta parte se pueden ver los valores de las tablas al extraerse del MySql
+
+
+```python
+df_users
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_id</th>
+      <th>email</th>
+      <th>first_name</th>
+      <th>last_name</th>
+      <th>password</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>PaulaPonce1@gmail.com</td>
+      <td>Paula</td>
+      <td>Ponce</td>
+      <td>b'2bf5309e56428a57f073efd97e7668a08cfc74db0a44...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>EmmaRamos2@gmail.com</td>
+      <td>Emma</td>
+      <td>Ramos</td>
+      <td>b'48e217aeaa990fa02a72367bda2ab6aeb77e87c9b4f4...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>RicardoSalazar3@gmail.com</td>
+      <td>Ricardo</td>
+      <td>Salazar</td>
+      <td>b'228b4b3c75ace3216c8189a12cca88befb322d9696c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>AnaGarcía4@gmail.com</td>
+      <td>Ana</td>
+      <td>García</td>
+      <td>b'0c44f0413a7351ae8a456633b6512797ea4cb515fa29...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>MartaMejía5@gmail.com</td>
+      <td>Marta</td>
+      <td>Mejía</td>
+      <td>b'43fa4a3e9cdd525128edaa7b7b7fd330f41d3aeb44c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>CamilaAcosta1046@gmail.com</td>
+      <td>Camila</td>
+      <td>Acosta</td>
+      <td>b'13a33a2c53304fffac7614be31a4bfe851f8a6d9f439...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>LorenaRamírez1047@gmail.com</td>
+      <td>Lorena</td>
+      <td>Ramírez</td>
+      <td>b'850b066ee061196ac4ed3b237979a7197fa506228af5...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>FranciscoEstrada1048@gmail.com</td>
+      <td>Francisco</td>
+      <td>Estrada</td>
+      <td>b'288d77e654df324e0d688d227f806c74034c3254792d...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>JavierGuerrero1049@gmail.com</td>
+      <td>Javier</td>
+      <td>Guerrero</td>
+      <td>b'bd469a97a827aec59ef3593118fb364a0af0db1558f6...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>ElenaFigueroa1050@gmail.com</td>
+      <td>Elena</td>
+      <td>Figueroa</td>
+      <td>b'21a6cffef3fce12cf6ed2a3ff79ade9ff80b4678fe77...</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+df_currencies
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>currency_id</th>
+      <th>name</th>
+      <th>acronym</th>
+      <th>symbol</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Colón Costarricense</td>
+      <td>CRC</td>
+      <td>₡</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Dólar Estadounidense</td>
+      <td>USD</td>
+      <td>$</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_subscriptions 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>subscription_id</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Estándar</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Premium</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_planPrices
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_prices_id</th>
+      <th>subscrition_Id</th>
+      <th>amount</th>
+      <th>currency_id</th>
+      <th>postTime</th>
+      <th>endDate</th>
+      <th>current</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>9.99</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-12-31</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>39.99</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-12-31</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_planFeaturesSubscriptions
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_features_id</th>
+      <th>subscription_id</th>
+      <th>value</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>No</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2</td>
+      <td>Sí</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>1</td>
+      <td>50</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>2</td>
+      <td>200</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3</td>
+      <td>1</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_schedules 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>schedule_id</th>
+      <th>name</th>
+      <th>repit</th>
+      <th>repetitions</th>
+      <th>recurrencyType</th>
+      <th>endDate</th>
+      <th>startDate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Pago Estándar Mensual</td>
+      <td>1</td>
+      <td>12</td>
+      <td>1</td>
+      <td>None</td>
+      <td>2025-04-30 06:06:52</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Pago Premium Anual</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>None</td>
+      <td>2025-04-30 06:06:52</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_scheduleDetails 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>schedules_details_id</th>
+      <th>deleted</th>
+      <th>schedule_id</th>
+      <th>baseDate</th>
+      <th>datePart</th>
+      <th>last_execute</th>
+      <th>next_execute</th>
+      <th>description</th>
+      <th>detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-01-01</td>
+      <td>None</td>
+      <td>2025-02-01</td>
+      <td>Pago mensual</td>
+      <td>Pago mensual de la suscripción Estándar</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-01-01</td>
+      <td>None</td>
+      <td>2026-01-01</td>
+      <td>Pago anual</td>
+      <td>Pago anual de la suscripción Premium</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_userPlanPrices 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_plan_price_id</th>
+      <th>user_id</th>
+      <th>plan_prices_id</th>
+      <th>adquision</th>
+      <th>enabled</th>
+      <th>schedule_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2025-03-28</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2025-03-19</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>2025-04-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>1</td>
+      <td>2025-03-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>1</td>
+      <td>2025-02-08</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>1046</td>
+      <td>2</td>
+      <td>2025-03-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>1047</td>
+      <td>2</td>
+      <td>2025-04-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>1048</td>
+      <td>2</td>
+      <td>2025-02-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>1049</td>
+      <td>2</td>
+      <td>2025-02-16</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>1050</td>
+      <td>2</td>
+      <td>2025-03-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+df_countries
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>country_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Costa Rica</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Estados Unidos</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>España</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>México</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Argentina</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Chile</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Colombia</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Perú</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>Brasil</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Francia</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_states
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state_id</th>
+      <th>name</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Cartago</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Alajuela</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Florida</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Texas</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Buenos Aires</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Córdoba</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Madrid</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Barcelona</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>São Paulo</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Lima</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_cities
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>city_id</th>
+      <th>state_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>Parrita</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>Santa Ana</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>Miami</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>Austin</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>Mar del Plata</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>6</td>
+      <td>Villa Carlos Paz</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>7</td>
+      <td>Sevilla</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>8</td>
+      <td>Sitges</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>9</td>
+      <td>Campinas</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>10</td>
+      <td>Arequipa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_addresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address_id</th>
+      <th>line1</th>
+      <th>line2</th>
+      <th>zipcode</th>
+      <th>geoposition</th>
+      <th>city_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Calle 1 #41</td>
+      <td>None</td>
+      <td>47290</td>
+      <td>POINT (-69.62084863299583 -126.94687827205927)</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Calle 2 #54</td>
+      <td>None</td>
+      <td>52776</td>
+      <td>POINT (-88.69406578940718 -16.93732734484351)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Calle 3 #85</td>
+      <td>None</td>
+      <td>55158</td>
+      <td>POINT (-55.874011596547454 -74.45279361163527)</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Calle 4 #60</td>
+      <td>None</td>
+      <td>33987</td>
+      <td>POINT (68.49769187951244 -42.08641244292858)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Calle 5 #21</td>
+      <td>None</td>
+      <td>27804</td>
+      <td>POINT (41.487150202958986 114.58411422985057)</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>Calle 1046 #32</td>
+      <td>None</td>
+      <td>99560</td>
+      <td>POINT (89.94139725336936 -175.85387046994072)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>Calle 1047 #25</td>
+      <td>None</td>
+      <td>11560</td>
+      <td>POINT (54.58595212976073 61.00499924365897)</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>Calle 1048 #67</td>
+      <td>None</td>
+      <td>58368</td>
+      <td>POINT (68.52666878935571 54.87802851468143)</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>Calle 1049 #14</td>
+      <td>None</td>
+      <td>85524</td>
+      <td>POINT (62.45690672887201 60.890862868065824)</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>Calle 1050 #1</td>
+      <td>None</td>
+      <td>66755</td>
+      <td>POINT (-38.03628076616328 -21.324578748386898)</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+df_userAddresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_address_id</th>
+      <th>user_id</th>
+      <th>address_id</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>996</td>
+      <td>996</td>
+      <td>996</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>997</td>
+      <td>997</td>
+      <td>997</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>998</td>
+      <td>998</td>
+      <td>998</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>999</td>
+      <td>999</td>
+      <td>999</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>999</th>
+      <td>1000</td>
+      <td>1000</td>
+      <td>1000</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 4 columns</p>
+</div>
+
+
+
+
+```python
+# Cursor para ejecutar los queries e inserts de SQL Server
+cursor = tSqlConn.cursor()
+```
+
+
+```python
+# Migrar los usuarios y conseguir los IDs del TSQL
+
+# Crear una tabla para tener los viejos userIDs y los nuevos para sustituirlos luego en las otras tablas 
+userIDMap = pd.DataFrame(columns = ["oldUserID","newUserID"])
+
+# Insertar uno por uno cada usuario
+for index, row in df_users.iterrows():
+    try:
+        oldUserID = row["user_id"]
+
+        # Insertar con OUTPUT para recuperar el userID generado
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_users(email, firstName, lastName, password)
+            OUTPUT INSERTED.userID
+            VALUES (?, ?, ?, ?);
+        """, (row["email"], row["first_name"], row["last_name"], row["password"]))
+        
+        # Recuperar el nuevo userID desde la salida del query
+        newUserID = cursor.fetchone()[0]
+
+        # Guarda el nuevo y viejo userID
+        userIDMap.loc[len(userIDMap)] = [oldUserID, newUserID]
+        # Cambia el userID para saber el nuevo userID del usuario en SQL Server
+        df_users.at[index, "user_id"] = newUserID
+
+        # Insertar al usuario nuevo a una tabla auxiliar que indique que es usuario del app assistant y no ha cambiado su contraseña
+        cursor.execute("""
+            INSERT INTO dbo.sol_migratedUsers(userID, platform, changedPassword)
+            VALUES (?, ?, ?);
+        """, (newUserID, "Payment Assistant", 0))
+
+    except Exception as e:
+        print(f"Error migrando usuario {oldUserID}: {e}")
+# Hacer el commit de todo al final                   
+tSqlConn.commit()
+```
+
+
+```python
+# Crear un diccionario de los IDs para remplazar los user_id en tablas que lo ocupan como FK
+idMap = dict(zip(userIDMap["oldUserID"], userIDMap["newUserID"]))
+
+df_userAddresses["user_id"] = df_userAddresses["user_id"].map(idMap)
+df_userPlanPrices["user_id"] = df_userPlanPrices["user_id"].map(idMap)
+```
+
+
+```python
+# Ver la tabla de userIDs nuevos y viejos
+userIDMap
+```
+
+
+```python
+# Usuarios antes
+df_users
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_id</th>
+      <th>email</th>
+      <th>first_name</th>
+      <th>last_name</th>
+      <th>password</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>PaulaPonce1@gmail.com</td>
+      <td>Paula</td>
+      <td>Ponce</td>
+      <td>b'2bf5309e56428a57f073efd97e7668a08cfc74db0a44...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>EmmaRamos2@gmail.com</td>
+      <td>Emma</td>
+      <td>Ramos</td>
+      <td>b'48e217aeaa990fa02a72367bda2ab6aeb77e87c9b4f4...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>RicardoSalazar3@gmail.com</td>
+      <td>Ricardo</td>
+      <td>Salazar</td>
+      <td>b'228b4b3c75ace3216c8189a12cca88befb322d9696c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>AnaGarcía4@gmail.com</td>
+      <td>Ana</td>
+      <td>García</td>
+      <td>b'0c44f0413a7351ae8a456633b6512797ea4cb515fa29...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>MartaMejía5@gmail.com</td>
+      <td>Marta</td>
+      <td>Mejía</td>
+      <td>b'43fa4a3e9cdd525128edaa7b7b7fd330f41d3aeb44c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>CamilaAcosta1046@gmail.com</td>
+      <td>Camila</td>
+      <td>Acosta</td>
+      <td>b'13a33a2c53304fffac7614be31a4bfe851f8a6d9f439...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>LorenaRamírez1047@gmail.com</td>
+      <td>Lorena</td>
+      <td>Ramírez</td>
+      <td>b'850b066ee061196ac4ed3b237979a7197fa506228af5...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>FranciscoEstrada1048@gmail.com</td>
+      <td>Francisco</td>
+      <td>Estrada</td>
+      <td>b'288d77e654df324e0d688d227f806c74034c3254792d...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>JavierGuerrero1049@gmail.com</td>
+      <td>Javier</td>
+      <td>Guerrero</td>
+      <td>b'bd469a97a827aec59ef3593118fb364a0af0db1558f6...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>ElenaFigueroa1050@gmail.com</td>
+      <td>Elena</td>
+      <td>Figueroa</td>
+      <td>b'21a6cffef3fce12cf6ed2a3ff79ade9ff80b4678fe77...</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+# Usuarios después
+df_users
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_id</th>
+      <th>email</th>
+      <th>first_name</th>
+      <th>last_name</th>
+      <th>password</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3</td>
+      <td>PaulaPonce1@gmail.com</td>
+      <td>Paula</td>
+      <td>Ponce</td>
+      <td>b'2bf5309e56428a57f073efd97e7668a08cfc74db0a44...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+      <td>EmmaRamos2@gmail.com</td>
+      <td>Emma</td>
+      <td>Ramos</td>
+      <td>b'48e217aeaa990fa02a72367bda2ab6aeb77e87c9b4f4...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5</td>
+      <td>RicardoSalazar3@gmail.com</td>
+      <td>Ricardo</td>
+      <td>Salazar</td>
+      <td>b'228b4b3c75ace3216c8189a12cca88befb322d9696c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6</td>
+      <td>AnaGarcía4@gmail.com</td>
+      <td>Ana</td>
+      <td>García</td>
+      <td>b'0c44f0413a7351ae8a456633b6512797ea4cb515fa29...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7</td>
+      <td>MartaMejía5@gmail.com</td>
+      <td>Marta</td>
+      <td>Mejía</td>
+      <td>b'43fa4a3e9cdd525128edaa7b7b7fd330f41d3aeb44c2...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1048</td>
+      <td>CamilaAcosta1046@gmail.com</td>
+      <td>Camila</td>
+      <td>Acosta</td>
+      <td>b'13a33a2c53304fffac7614be31a4bfe851f8a6d9f439...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1049</td>
+      <td>LorenaRamírez1047@gmail.com</td>
+      <td>Lorena</td>
+      <td>Ramírez</td>
+      <td>b'850b066ee061196ac4ed3b237979a7197fa506228af5...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1050</td>
+      <td>FranciscoEstrada1048@gmail.com</td>
+      <td>Francisco</td>
+      <td>Estrada</td>
+      <td>b'288d77e654df324e0d688d227f806c74034c3254792d...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1051</td>
+      <td>JavierGuerrero1049@gmail.com</td>
+      <td>Javier</td>
+      <td>Guerrero</td>
+      <td>b'bd469a97a827aec59ef3593118fb364a0af0db1558f6...</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1052</td>
+      <td>ElenaFigueroa1050@gmail.com</td>
+      <td>Elena</td>
+      <td>Figueroa</td>
+      <td>b'21a6cffef3fce12cf6ed2a3ff79ade9ff80b4678fe77...</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+# Ver las tablas actualizadas de df_userAddresses y df_userPlanPrices
+df_userAddresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_address_id</th>
+      <th>user_id</th>
+      <th>address_id</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>5</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>6</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>7</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>996</td>
+      <td>998</td>
+      <td>996</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>997</td>
+      <td>999</td>
+      <td>997</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>998</td>
+      <td>1000</td>
+      <td>998</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>999</td>
+      <td>1001</td>
+      <td>999</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>999</th>
+      <td>1000</td>
+      <td>1002</td>
+      <td>1000</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 4 columns</p>
+</div>
+
+
+
+
+```python
+df_userPlanPrices
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_plan_price_id</th>
+      <th>user_id</th>
+      <th>plan_prices_id</th>
+      <th>adquision</th>
+      <th>enabled</th>
+      <th>schedule_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>2025-03-28</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>4</td>
+      <td>1</td>
+      <td>2025-03-19</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>5</td>
+      <td>1</td>
+      <td>2025-04-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>6</td>
+      <td>1</td>
+      <td>2025-03-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>7</td>
+      <td>1</td>
+      <td>2025-02-08</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>1048</td>
+      <td>2</td>
+      <td>2025-03-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>1049</td>
+      <td>2</td>
+      <td>2025-04-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>1050</td>
+      <td>2</td>
+      <td>2025-02-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>1051</td>
+      <td>2</td>
+      <td>2025-02-16</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>1052</td>
+      <td>2</td>
+      <td>2025-03-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+## Migración de países, estados y ciudades
+
+### Países
+
+
+```python
+countryIDMap = pd.DataFrame(columns=["oldCountryID", "newCountryID"])
+
+for index, row in df_countries.iterrows():
+    cursor.execute("SELECT countryID FROM solturaDB.sol_countries WHERE name = ?", row["name"])
+    result = cursor.fetchone()
+
+    if result:
+        newID = result[0]
+    else:
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_countries(name)
+            OUTPUT INSERTED.countryID
+            VALUES (?);
+        """, row["name"])
+        newID = cursor.fetchone()[0]
+    
+    countryIDMap.loc[len(countryIDMap)] = [row["country_id"], newID]
+    df_countries.at[index, "country_id"] = newID
+
+tSqlConn.commit()
+```
+
+
+```python
+# Crear un diccionario de los IDs para remplazar los viejos por de los insertados
+mapCountries = dict(zip(countryIDMap["oldCountryID"], countryIDMap["newCountryID"]))
+
+df_states["country_id"] = df_states["country_id"].map(mapCountries)
+df_currencies["country_id"] = df_currencies["country_id"].map(mapCountries)
+```
+
+### Vista de los datos actualizados
+
+
+```python
+countryIDMap
+```
+
+
+```python
+# Países antes
+df_countries
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>country_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Costa Rica</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Estados Unidos</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>España</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>México</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Argentina</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Chile</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Colombia</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Perú</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>Brasil</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Francia</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Países después
+df_countries
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>country_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Costa Rica</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Estados Unidos</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4</td>
+      <td>España</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>México</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Argentina</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Chile</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Colombia</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Perú</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>Brasil</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Francia</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Estados antes
+df_states
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state_id</th>
+      <th>name</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Cartago</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Alajuela</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Florida</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Texas</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Buenos Aires</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Córdoba</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Madrid</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Barcelona</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>São Paulo</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Lima</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Estados después
+df_states
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state_id</th>
+      <th>name</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Cartago</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Alajuela</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Florida</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Texas</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Buenos Aires</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Córdoba</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Madrid</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Barcelona</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>São Paulo</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Lima</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### Estados
+
+
+```python
+stateIDMap = pd.DataFrame(columns=["oldStateID", "newStateID"])
+
+for index, row in df_states.iterrows():
+    
+    cursor.execute("""
+        SELECT stateID FROM solturaDB.sol_states 
+        WHERE name = ? AND countryID = ?
+    """,  (str(row["name"]), int(row["country_id"])))
+    result = cursor.fetchone()
+    
+    if result:
+        newID = result[0]
+    else:
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_states(name, countryID)
+            OUTPUT INSERTED.stateID
+            VALUES (?, ?);
+        """,  (str(row["name"]), int(row["country_id"])))
+        newID = cursor.fetchone()[0]
+    
+    stateIDMap.loc[len(stateIDMap)] = [row["state_id"], int(newID)]
+    df_states.at[index, "state_id"] = newID
+
+tSqlConn.commit()
+```
+
+
+```python
+mapStates = dict(zip(stateIDMap["oldStateID"], stateIDMap["newStateID"]))
+df_cities["state_id"] = df_cities["state_id"].map(mapStates)
+```
+
+### Vista de los datos actualizados
+
+
+```python
+stateIDMap
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>oldStateID</th>
+      <th>newStateID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>21</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Estados antes
+df_states
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state_id</th>
+      <th>name</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Cartago</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Alajuela</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Florida</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Texas</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Buenos Aires</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Córdoba</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Madrid</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Barcelona</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>São Paulo</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>Lima</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Estados después
+df_states
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state_id</th>
+      <th>name</th>
+      <th>country_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3</td>
+      <td>Cartago</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Alajuela</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10</td>
+      <td>Florida</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9</td>
+      <td>Texas</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>18</td>
+      <td>Buenos Aires</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>19</td>
+      <td>Córdoba</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>15</td>
+      <td>Madrid</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>16</td>
+      <td>Barcelona</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>20</td>
+      <td>São Paulo</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>21</td>
+      <td>Lima</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Ciudades antes
+df_cities
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>city_id</th>
+      <th>state_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>Parrita</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>Santa Ana</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>Miami</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>Austin</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>Mar del Plata</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>6</td>
+      <td>Villa Carlos Paz</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>7</td>
+      <td>Sevilla</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>8</td>
+      <td>Sitges</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>9</td>
+      <td>Campinas</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>10</td>
+      <td>Arequipa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Ciudades después
+df_cities
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>city_id</th>
+      <th>state_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3</td>
+      <td>Parrita</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>Santa Ana</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>10</td>
+      <td>Miami</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>9</td>
+      <td>Austin</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>18</td>
+      <td>Mar del Plata</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>19</td>
+      <td>Villa Carlos Paz</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>15</td>
+      <td>Sevilla</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>16</td>
+      <td>Sitges</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>20</td>
+      <td>Campinas</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>21</td>
+      <td>Arequipa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### Ciudades
+
+
+```python
+cityIDMap = pd.DataFrame(columns=["oldCityID", "newCityID"])
+
+for index, row in df_cities.iterrows():
+    
+    cursor.execute("""
+        SELECT cityID FROM solturaDB.sol_city
+        WHERE name = ? AND stateID = ?
+    """, (row["name"], row["state_id"]))
+    result = cursor.fetchone()
+
+    if result:
+        newID = result[0]
+    else:
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_city(name, stateID)
+            OUTPUT INSERTED.cityID
+            VALUES (?, ?);
+        """, (row["name"], row["state_id"]))
+        newID = cursor.fetchone()[0]
+
+    cityIDMap.loc[len(cityIDMap)] = [row["city_id"], newID]
+    df_cities.at[index, "city_id"] = newID
+
+tSqlConn.commit()
+```
+
+
+```python
+mapCities = dict(zip(cityIDMap["oldCityID"], cityIDMap["newCityID"]))
+df_addresses["city_id"] = df_addresses["city_id"].map(mapCities)
+```
+
+### Vista de los datos actualizados
+
+
+```python
+cityIDMap
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>oldCityID</th>
+      <th>newCityID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>25</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Ciudades antes
+df_cities
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>city_id</th>
+      <th>state_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>Parrita</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>Santa Ana</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>Miami</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>Austin</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>Mar del Plata</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>6</td>
+      <td>Villa Carlos Paz</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>7</td>
+      <td>Sevilla</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>8</td>
+      <td>Sitges</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>9</td>
+      <td>Campinas</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>10</td>
+      <td>Arequipa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Ciudades después
+df_cities
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>city_id</th>
+      <th>state_id</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>16</td>
+      <td>3</td>
+      <td>Parrita</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>17</td>
+      <td>2</td>
+      <td>Santa Ana</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>18</td>
+      <td>10</td>
+      <td>Miami</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>19</td>
+      <td>9</td>
+      <td>Austin</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>20</td>
+      <td>18</td>
+      <td>Mar del Plata</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>21</td>
+      <td>19</td>
+      <td>Villa Carlos Paz</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>22</td>
+      <td>15</td>
+      <td>Sevilla</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>23</td>
+      <td>16</td>
+      <td>Sitges</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>24</td>
+      <td>20</td>
+      <td>Campinas</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>25</td>
+      <td>21</td>
+      <td>Arequipa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Addresses antes
+df_addresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address_id</th>
+      <th>line1</th>
+      <th>line2</th>
+      <th>zipcode</th>
+      <th>geoposition</th>
+      <th>city_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Calle 1 #41</td>
+      <td>None</td>
+      <td>47290</td>
+      <td>POINT (-69.62084863299583 -126.94687827205927)</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Calle 2 #54</td>
+      <td>None</td>
+      <td>52776</td>
+      <td>POINT (-88.69406578940718 -16.93732734484351)</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Calle 3 #85</td>
+      <td>None</td>
+      <td>55158</td>
+      <td>POINT (-55.874011596547454 -74.45279361163527)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Calle 4 #60</td>
+      <td>None</td>
+      <td>33987</td>
+      <td>POINT (68.49769187951244 -42.08641244292858)</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Calle 5 #21</td>
+      <td>None</td>
+      <td>27804</td>
+      <td>POINT (41.487150202958986 114.58411422985057)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>Calle 1046 #32</td>
+      <td>None</td>
+      <td>99560</td>
+      <td>POINT (89.94139725336936 -175.85387046994072)</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>Calle 1047 #25</td>
+      <td>None</td>
+      <td>11560</td>
+      <td>POINT (54.58595212976073 61.00499924365897)</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>Calle 1048 #67</td>
+      <td>None</td>
+      <td>58368</td>
+      <td>POINT (68.52666878935571 54.87802851468143)</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>Calle 1049 #14</td>
+      <td>None</td>
+      <td>85524</td>
+      <td>POINT (62.45690672887201 60.890862868065824)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>Calle 1050 #1</td>
+      <td>None</td>
+      <td>66755</td>
+      <td>POINT (-38.03628076616328 -21.324578748386898)</td>
+      <td>19</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+# Addresses después
+df_addresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address_id</th>
+      <th>line1</th>
+      <th>line2</th>
+      <th>zipcode</th>
+      <th>geoposition</th>
+      <th>city_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Calle 1 #41</td>
+      <td>None</td>
+      <td>47290</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xf0\x9e...</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Calle 2 #54</td>
+      <td>None</td>
+      <td>52776</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xae\xb1...</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Calle 3 #85</td>
+      <td>None</td>
+      <td>55158</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x7f\xbf...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Calle 4 #60</td>
+      <td>None</td>
+      <td>33987</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00h\x7f\n/...</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Calle 5 #21</td>
+      <td>None</td>
+      <td>27804</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00l\xf9\x1...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>Calle 1046 #32</td>
+      <td>None</td>
+      <td>99560</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\xf1...</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>Calle 1047 #25</td>
+      <td>None</td>
+      <td>11560</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x04,\xb...</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>Calle 1048 #67</td>
+      <td>None</td>
+      <td>58368</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xd4\x86...</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>Calle 1049 #14</td>
+      <td>None</td>
+      <td>85524</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xf0\xe9...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>Calle 1050 #1</td>
+      <td>None</td>
+      <td>66755</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x93\x12...</td>
+      <td>19</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+## Migración de direcciones y direcciones de usuario
+
+Una vez insertados las ciudades, ya se pueden migrar las direcciones de todos los usuarios
+
+
+```python
+# Crear DataFrame para mapear address_id viejos a nuevos
+addressIDMap = pd.DataFrame(columns=["oldAddressID", "newAddressID"])
+
+for index, row in df_addresses.iterrows():
+    try:
+        oldAddressID = row["address_id"]
+
+        # Insertar la dirección y obtener el nuevo ID generado
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_addresses(line1, line2, zipcode, geoposition, cityID)
+            OUTPUT INSERTED.addressID
+            VALUES (?, ?, ?, geometry::STGeomFromText(?, 4326), ?);
+        """, (str(row["line1"]), str(row["line2"]) if pd.notna(row["line2"]) else None,
+              str(row["zipcode"]), row["geoposition"], row["city_id"]))
+        
+        newAddressID = cursor.fetchone()[0]
+
+        # Guardar el mapeo
+        addressIDMap.loc[len(addressIDMap)] = [oldAddressID, newAddressID]
+
+        # Actualizar el DataFrame original
+        df_addresses.at[index, "address_id"] = newAddressID
+
+    except Exception as e:
+        print(f"Error migrando dirección {oldAddressID}: {e}")
+        break
+
+tSqlConn.commit()
+```
+
+
+```python
+addressMap = dict(zip(addressIDMap["oldAddressID"], addressIDMap["newAddressID"]))
+df_userAddresses["address_id"] = df_userAddresses["address_id"].map(addressMap)
+```
+
+### Vista de los datos actualizados
+
+
+```python
+addressIDMap
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>oldAddressID</th>
+      <th>newAddressID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>1051</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>1052</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>1053</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>1054</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>1055</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 2 columns</p>
+</div>
+
+
+
+
+```python
+# Addresses antes
+df_addresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address_id</th>
+      <th>line1</th>
+      <th>line2</th>
+      <th>zipcode</th>
+      <th>geoposition</th>
+      <th>city_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Calle 1 #41</td>
+      <td>None</td>
+      <td>47290</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xf0\x9e...</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Calle 2 #54</td>
+      <td>None</td>
+      <td>52776</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xae\xb1...</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Calle 3 #85</td>
+      <td>None</td>
+      <td>55158</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x7f\xbf...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Calle 4 #60</td>
+      <td>None</td>
+      <td>33987</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00h\x7f\n/...</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Calle 5 #21</td>
+      <td>None</td>
+      <td>27804</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00l\xf9\x1...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>Calle 1046 #32</td>
+      <td>None</td>
+      <td>99560</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\xf1...</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>Calle 1047 #25</td>
+      <td>None</td>
+      <td>11560</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x04,\xb...</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>Calle 1048 #67</td>
+      <td>None</td>
+      <td>58368</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xd4\x86...</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>Calle 1049 #14</td>
+      <td>None</td>
+      <td>85524</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\xf0\xe9...</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>Calle 1050 #1</td>
+      <td>None</td>
+      <td>66755</td>
+      <td>b'\x00\x00\x00\x00\x01\x01\x00\x00\x00\x93\x12...</td>
+      <td>19</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+# Addresses después
+df_addresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address_id</th>
+      <th>line1</th>
+      <th>line2</th>
+      <th>zipcode</th>
+      <th>geoposition</th>
+      <th>city_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6</td>
+      <td>Calle 1 #41</td>
+      <td>None</td>
+      <td>47290</td>
+      <td>POINT (-69.62084863299583 -126.94687827205927)</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7</td>
+      <td>Calle 2 #54</td>
+      <td>None</td>
+      <td>52776</td>
+      <td>POINT (-88.69406578940718 -16.93732734484351)</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8</td>
+      <td>Calle 3 #85</td>
+      <td>None</td>
+      <td>55158</td>
+      <td>POINT (-55.874011596547454 -74.45279361163527)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9</td>
+      <td>Calle 4 #60</td>
+      <td>None</td>
+      <td>33987</td>
+      <td>POINT (68.49769187951244 -42.08641244292858)</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10</td>
+      <td>Calle 5 #21</td>
+      <td>None</td>
+      <td>27804</td>
+      <td>POINT (41.487150202958986 114.58411422985057)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1051</td>
+      <td>Calle 1046 #32</td>
+      <td>None</td>
+      <td>99560</td>
+      <td>POINT (89.94139725336936 -175.85387046994072)</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1052</td>
+      <td>Calle 1047 #25</td>
+      <td>None</td>
+      <td>11560</td>
+      <td>POINT (54.58595212976073 61.00499924365897)</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1053</td>
+      <td>Calle 1048 #67</td>
+      <td>None</td>
+      <td>58368</td>
+      <td>POINT (68.52666878935571 54.87802851468143)</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1054</td>
+      <td>Calle 1049 #14</td>
+      <td>None</td>
+      <td>85524</td>
+      <td>POINT (62.45690672887201 60.890862868065824)</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1055</td>
+      <td>Calle 1050 #1</td>
+      <td>None</td>
+      <td>66755</td>
+      <td>POINT (-38.03628076616328 -21.324578748386898)</td>
+      <td>19</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+
+```python
+# User Addresses antes
+df_userAddresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_address_id</th>
+      <th>user_id</th>
+      <th>address_id</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>996</td>
+      <td>996</td>
+      <td>996</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>997</td>
+      <td>997</td>
+      <td>997</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>998</td>
+      <td>998</td>
+      <td>998</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>999</td>
+      <td>999</td>
+      <td>999</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>999</th>
+      <td>1000</td>
+      <td>1000</td>
+      <td>1000</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 4 columns</p>
+</div>
+
+
+
+
+```python
+# User Addresses después
+df_userAddresses
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_address_id</th>
+      <th>user_id</th>
+      <th>address_id</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>6</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>10</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>996</td>
+      <td>996</td>
+      <td>1001</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>997</td>
+      <td>997</td>
+      <td>1002</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>998</td>
+      <td>998</td>
+      <td>1003</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>999</td>
+      <td>999</td>
+      <td>1004</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>999</th>
+      <td>1000</td>
+      <td>1000</td>
+      <td>1005</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 4 columns</p>
+</div>
+
+
+
+
+```python
+# Insertar los userAddresses
+for index, row in df_userAddresses.iterrows():
+    try:
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_usersAdresses(userID, addressID, enabled)
+            VALUES (?, ?, ?);
+        """, (int(row["user_id"]), int(row["address_id"]), bool(row["enabled"])))
+        
+    except Exception as e:
+        print(f"Error migrando user_address {row['user_address_id']}: {e}")
+
+tSqlConn.commit()
+
+```
+
+## Migración de los schedules
+
+
+```python
+# Crear DataFrame para mapear schedule_id viejos a nuevos
+scheduleIDMap = pd.DataFrame(columns=["oldScheduleID", "newScheduleID"])
+
+for index, row in df_schedules.iterrows():
+    try:
+        oldScheduleID = int(row["schedule_id"])
+
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_schedules(name, repit, repetitions, recurrencyType, endDate, startDate)
+            OUTPUT INSERTED.scheduleID
+            VALUES (?, ?, ?, ?, ?, ?);
+        """, (
+            str(row["name"]),
+            bool(row["repit"]),
+            int(row["repetitions"]),
+            int(row["recurrencyType"]),
+            row["endDate"] if pd.notna(row["endDate"]) else None,
+            row["startDate"]
+        ))
+
+        newScheduleID = cursor.fetchone()[0]
+        scheduleIDMap.loc[len(scheduleIDMap)] = [int(oldScheduleID), int(newScheduleID)]
+
+        # Actualizar el DataFrame original
+        df_schedules.at[index, "schedule_id"] = newScheduleID
+
+    except Exception as e:
+        print(f"Error migrando schedule {oldScheduleID}: {e}")
+        break
+
+tSqlConn.commit()
+
+```
+
+
+```python
+# Reemplazar schedule_id viejo con el nuevo
+scheduleMap = dict(zip(scheduleIDMap["oldScheduleID"], scheduleIDMap["newScheduleID"]))
+df_scheduleDetails["schedule_id"] = df_scheduleDetails["schedule_id"].map(scheduleMap)
+df_userPlanPrices["schedule_id"] = df_userPlanPrices["schedule_id"].map(scheduleMap)
+```
+
+
+```python
+# Crear DataFrame para mapear schedules_details_id viejos a nuevos
+scheduleDetailIDMap = pd.DataFrame(columns=["oldScheduleDetailID", "newScheduleDetailID"])
+
+for index, row in df_scheduleDetails.iterrows():
+    try:
+        oldDetailID = int(row["schedules_details_id"])
+
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_schedulesDetails(
+                deleted, schedule_id, baseDate, datePart, lastExecute, nextExecute, description, detail
+            )
+            OUTPUT INSERTED.schedulesDetailsID
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        """, (
+            bool(row["deleted"]),
+            int(row["schedule_id"]),
+            row["baseDate"],
+            row["datePart"],
+            row["last_execute"] if pd.notna(row["last_execute"]) else None,
+            row["next_execute"],
+            str(row["description"]),
+            str(row["detail"])
+        ))
+
+        newDetailID = cursor.fetchone()[0]
+        scheduleDetailIDMap.loc[len(scheduleDetailIDMap)] = [oldDetailID, newDetailID]
+
+        # Actualizar el DataFrame original
+        df_scheduleDetails.at[index, "schedules_details_id"] = newDetailID
+
+    except Exception as e:
+        print(f"Error migrando schedule_detail {oldDetailID}: {e}")
+        break
+
+tSqlConn.commit()
+
+```
+
+### Vista de los datos 
+
+
+```python
+df_schedules
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>schedule_id</th>
+      <th>name</th>
+      <th>repit</th>
+      <th>repetitions</th>
+      <th>recurrencyType</th>
+      <th>endDate</th>
+      <th>startDate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Pago Estándar Mensual</td>
+      <td>1</td>
+      <td>12</td>
+      <td>1</td>
+      <td>None</td>
+      <td>2025-04-30 06:06:52</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Pago Premium Anual</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>None</td>
+      <td>2025-04-30 06:06:52</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_scheduleDetails
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>schedules_details_id</th>
+      <th>deleted</th>
+      <th>schedule_id</th>
+      <th>baseDate</th>
+      <th>datePart</th>
+      <th>last_execute</th>
+      <th>next_execute</th>
+      <th>description</th>
+      <th>detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-01-01</td>
+      <td>None</td>
+      <td>2025-02-01</td>
+      <td>Pago mensual</td>
+      <td>Pago mensual de la suscripción Estándar</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-01-01</td>
+      <td>None</td>
+      <td>2026-01-01</td>
+      <td>Pago anual</td>
+      <td>Pago anual de la suscripción Premium</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+# Adaptación de los planes
+
+Pay assistant va a ser migrada como un partner a soltura, con un contrato temporal donde no haya descuento ni comisión
+
+
+```python
+from datetime import datetime, timedelta
+
+# Instanciar IDs desde antes
+partnerId = None
+dealId = None
+
+# Datos para de Payment Assistant
+partnerData = {
+    "name": "Payment Assistant",
+    "registerDate": datetime.now(),
+    "state": 1,
+    "identificationtypeId": 1,
+    "enterpriseSizeId": 2,
+    "identification": "3-100-123654"
+}
+
+# Insertar el partner a TSQL
+try:
+    cursor.execute("""
+        INSERT INTO solturaDB.sol_partners
+        (name, registerDate, state, identificationtypeId, enterpriseSizeId, identification)
+        OUTPUT INSERTED.partnerID
+        VALUES (?, ?, ?, ?, ?, ?);
+    """, (
+        partnerData["name"],
+        partnerData["registerDate"],
+        partnerData["state"],
+        partnerData["identificationtypeId"],
+        partnerData["enterpriseSizeId"],
+        partnerData["identification"]
+    ))
+
+    partnerId = cursor.fetchone()[0]
+
+except Exception as e:
+    print(f"Error insertando partner: {e}")
+
+# Si el partner fue insertado correctamente, insertar el deal
+if partnerId is not None:
+    try:
+        sealDate = datetime.now()
+        endDate = sealDate + timedelta(days=150) # Este se va a adaptar a que dure esta cantidad de días
+
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_deals
+            (partnerId, dealDescription, sealDate, endDate, solturaComission, discount, isActive)
+            OUTPUT INSERTED.dealID
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+        """, (
+            partnerId,
+            "Beneficios de app: Payment Assistant",
+            sealDate,
+            endDate,
+            0, 
+            0,
+            1  
+        ))
+
+        dealId = cursor.fetchone()[0]
+
+    except Exception as e:
+        print(f"Error insertando deal: {e}")
+
+
+tSqlConn.commit()
+
+
+```
+
+
+```python
+print(dealId)
+```
+
+### Tablas de datos de los planes de Mysql 
+
+
+```python
+df_subscriptions 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>subscription_id</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Estándar</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Premium</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_planPrices
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_prices_id</th>
+      <th>subscrition_Id</th>
+      <th>amount</th>
+      <th>currency_id</th>
+      <th>postTime</th>
+      <th>endDate</th>
+      <th>current</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>9.99</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-12-31</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>39.99</td>
+      <td>2</td>
+      <td>2025-04-30 06:06:52</td>
+      <td>2025-12-31</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_planFeaturesSubscriptions 
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_features_id</th>
+      <th>subscription_id</th>
+      <th>value</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>No</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2</td>
+      <td>Sí</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>1</td>
+      <td>50</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>2</td>
+      <td>200</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3</td>
+      <td>1</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_planFeatures
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_features_id</th>
+      <th>description</th>
+      <th>enabled</th>
+      <th>dataType</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Acceso a soporte 24/7</td>
+      <td>1</td>
+      <td>Boolean</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Límite de transacciones mensuales</td>
+      <td>1</td>
+      <td>Integer</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Límite de creación de pagos recurrentes</td>
+      <td>1</td>
+      <td>Integer</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df_userPlanPrices
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_plan_price_id</th>
+      <th>user_id</th>
+      <th>plan_prices_id</th>
+      <th>adquision</th>
+      <th>enabled</th>
+      <th>schedule_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>2025-03-28</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>4</td>
+      <td>1</td>
+      <td>2025-03-19</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>5</td>
+      <td>1</td>
+      <td>2025-04-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>6</td>
+      <td>1</td>
+      <td>2025-03-16</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>7</td>
+      <td>1</td>
+      <td>2025-02-08</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1045</th>
+      <td>1046</td>
+      <td>1048</td>
+      <td>2</td>
+      <td>2025-03-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1046</th>
+      <td>1047</td>
+      <td>1049</td>
+      <td>2</td>
+      <td>2025-04-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1047</th>
+      <td>1048</td>
+      <td>1050</td>
+      <td>2</td>
+      <td>2025-02-12</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1048</th>
+      <td>1049</td>
+      <td>1051</td>
+      <td>2</td>
+      <td>2025-02-16</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1049</th>
+      <td>1050</td>
+      <td>1052</td>
+      <td>2</td>
+      <td>2025-03-25</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>1050 rows × 6 columns</p>
+</div>
+
+
+
+## Migración de planes
+
+
+
+
+```python
+planIDMap = {}
+
+for index, row in df_subscriptions.iterrows():
+    description = row["description"]
+    planTypeId = 1 if description == "Estándar" else 2
+
+    cursor.execute("""
+        INSERT INTO solturaDB.sol_plans (description, planTypeId)
+        OUTPUT INSERTED.planID
+        VALUES (?, ?);
+    """, (description, planTypeId))
+
+    planID = cursor.fetchone()[0]
+    planIDMap[int(row["subscription_id"])] = int(planID)
+
+tSqlConn.commit()
+
+
+
+```
+
+
+```python
+# Actualizar los subscription_id en df_subscriptions y df_planPrices y df_planFeaturesSubscriptions
+df_subscriptions["subscription_id"] = df_subscriptions["subscription_id"].map(planIDMap)
+df_planPrices["subscrition_Id"] = df_planPrices["subscrition_Id"].map(planIDMap)
+df_planFeaturesSubscriptions["subscription_id"] = df_planFeaturesSubscriptions["subscription_id"].map(planIDMap)
+```
+
+
+```python
+planPriceIDMap = {}
+
+for index, row in df_planPrices.iterrows():
+    planID = int(row["subscrition_Id"])
+    amount = float(row["amount"])
+    currency_id = int(row["currency_id"])
+    postTime = row["postTime"]
+    endDate = row["endDate"]
+
+
+    cursor.execute("""
+        INSERT INTO solturaDB.sol_planPrices (
+            planID, amount, currency_id, postTime, endDate, [current]
+        )
+        OUTPUT INSERTED.planPriceID
+        VALUES (?, ?, ?, ?, ?, ?);
+    """, (planID, amount, currency_id, postTime, endDate, bool(1)))
+
+    planPriceID = cursor.fetchone()[0]
+    planPriceIDMap[int(row["plan_prices_id"])] = int(planPriceID)
+
+tSqlConn.commit()
+
+
+```
+
+
+```python
+# Actualizar los plan_prices_id en df_planPrices y df_userPlanPrices
+df_planPrices["plan_prices_id"] = df_planPrices["plan_prices_id"].map(planPriceIDMap)
+df_userPlanPrices["plan_prices_id"] = df_userPlanPrices["plan_prices_id"].map(planPriceIDMap)
+```
+
+
+```python
+for index, row in df_userPlanPrices.iterrows():
+    user_id = int(row["user_id"])
+    plan_prices_id = int(row["plan_prices_id"])
+    adquision = row["adquision"]
+    enabled = int(row["enabled"])
+    schedule_id = int(row["schedule_id"])
+
+    cursor.execute("""
+        INSERT INTO solturaDB.sol_userPlans (
+            userID, planPriceID, adquisition, enabled, scheduleID
+        )
+        VALUES (?, ?, ?, ?, ?);
+    """, (user_id, plan_prices_id, adquision, enabled, schedule_id))
+
+tSqlConn.commit()
+```
+
+
+```python
+# Insertar "Aplicación" como tipo de feature, ya que sol_features necesita un tipo de feature
+featureTypeId = None
+try:
+    cursor.execute("""
+        INSERT INTO solturaDB.sol_featureTypes(type)
+        OUTPUT INSERTED.featureTypeID
+        VALUES (?);
+    """, ("Aplicación",))
+    featureTypeId = cursor.fetchone()[0]
+    featureTypeId = int(featureTypeId)
+except Exception as e:
+    print(f"Error insertando tipo de feature: {e}")
+```
+
+
+```python
+featureTypeId
+```
+
+
+```python
+# Crear el nuevo DataFrame de datos adaptado para guardar lo insertado de planFeatures
+sol_planFeatures = pd.DataFrame(columns=[
+    "featureID", "planFeaturesId", "dealId", "description", "unit", "consumableQuantity", 
+    "enabled", "isRecurrent", "scheduleID", "featureTypeID"
+])
+
+planFeatureIdMap = {}
+
+# Recorrer los planFeatures y cruzarlos con los planfeatureSubscriptions
+for index, planFeature in df_planFeatures.iterrows():
+    planFeaturesId = int(planFeature["plan_features_id"])
+    description = planFeature["description"]
+    unit = planFeature["dataType"]
+
+    # Filtrar las suscripciones que tienen este feature
+    relatedSubs = df_planFeaturesSubscriptions[
+        df_planFeaturesSubscriptions["plan_features_id"] == planFeaturesId
+    ]
+
+    for index, sub in relatedSubs.iterrows():
+        rawValue = sub["value"]
+
+        # Convertir valor de texto a número
+        if rawValue == "No":
+            consumableQuantity = 0
+        elif rawValue == "Sí":
+            consumableQuantity = 1
+        else:
+            consumableQuantity = int(rawValue)
+
+        try:
+            cursor.execute("""
+                INSERT INTO solturaDB.sol_planFeatures(
+                    dealId, description, unit, consumableQuantity, enabled,
+                    isRecurrent, scheduleID, featureTypeID
+                )
+                OUTPUT INSERTED.planFeatureID
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            """, (
+                dealId,
+                description,
+                unit,
+                consumableQuantity,
+                1,      # enabled
+                0,      # isRecurrent
+                3,      #  # scheduleID (Ejecución mensual) 
+                featureTypeId
+            ))
+
+            featureId = int(cursor.fetchone()[0])
+
+            # Guardar en DataFrame con planFeaturesId incluido
+            sol_planFeatures.loc[len(sol_planFeatures)] = [
+                featureId,
+                planFeaturesId,
+                dealId,
+                description,
+                unit,
+                consumableQuantity,
+                1,
+                0,
+                3,
+                featureTypeId
+            ]
+
+            # Registrar el mapeo para luego adaptarlo
+            planFeatureIdMap[planFeaturesId] = featureId
+
+        except Exception as e:
+            print(f"Error insertando feature {planFeaturesId}: {e}")
+
+# Confirmar
+tSqlConn.commit()
+
+```
+
+
+```python
+# Actualizar los plan_features_id en df_planFeaturesSubscriptions
+df_planFeaturesSubscriptions["plan_features_id"] = df_planFeaturesSubscriptions["plan_features_id"].map(planFeatureIdMap)
+```
+
+
+```python
+planFeatureIdMap
+```
+
+
+```python
+df_planFeaturesSubscriptions
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>plan_features_id</th>
+      <th>subscription_id</th>
+      <th>value</th>
+      <th>enabled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>9</td>
+      <td>25</td>
+      <td>No</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9</td>
+      <td>26</td>
+      <td>Sí</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>11</td>
+      <td>25</td>
+      <td>50</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11</td>
+      <td>26</td>
+      <td>200</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>12</td>
+      <td>25</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Insertar en sol_featuresPerPlan con el campo enabled en 1
+for index, row in df_planFeaturesSubscriptions.iterrows():
+    try:
+        cursor.execute("""
+            INSERT INTO solturaDB.sol_featuresPerPlans (planFeatureID, planID, enabled)
+            VALUES (?, ?, ?);
+        """, (int(row["plan_features_id"]), int(row["subscription_id"]), 1))
+    except Exception as e:
+        print(f"Error insertando feature-plan: {row.to_dict()} -> {e}")
+
+tSqlConn.commit()
+```
+## LINK A CARPETAS EN GITHUB
+Scripts
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Scripts
+
+Queries
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Queries
+
+Diseño
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Dise%C3%B1os
+
+Consultas Misceláneas
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/ConsultasMiscelaneas
+
+Concurrencia
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Concurrencia
+
+Migrado de Datos
+
+https://github.com/WeebL0rd/Caso-2-BDI/tree/main/Scripts/PayAssistant
